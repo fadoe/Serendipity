@@ -112,7 +112,7 @@ function show_plugins($event_only = false, $sidebars = null)
         $plugin_placements = $sidebars;
     }
     $data['plugin_placements'] = $plugin_placements;
-    //???$ownership = array();
+    $ownership = array();
 
     $total = 0;
     foreach ($plugin_placements as $plugin_placement) {
@@ -155,7 +155,7 @@ function show_plugins($event_only = false, $sidebars = null)
 
                 $name  = htmlspecialchars($bag->get('name'));
                 $desc  = htmlspecialchars($bag->get('description'));
-                $desc .= '<br />' . VERSION  . ': <em>' . $bag->get('version') . '</em>';
+                $desc .= '<span class="block_level">' . VERSION  . ': <em>' . $bag->get('version') . '</em></span>';
 
                 $title = serendipity_plugin_api::get_plugin_title($plugin, '[' . $name . ']');
 
