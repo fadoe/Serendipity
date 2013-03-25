@@ -1,0 +1,4 @@
+Name: FaDoe 2013
+Author: Falk Doering
+Date: 2013-03-
+Require Serendipity: 1.6
