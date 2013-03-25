@@ -5,6 +5,8 @@
 
         {foreach from=$dategroup.entries item="entry"}
 
+            <article class="media">
+
             {assign var="entry" value=$entry scope="parent"}
 
             <h2><a href="{$entry.link}">{$entry.title|@default:$entry.body|truncate:200:" ..."}</a></h2>
@@ -36,11 +38,11 @@
             </rdf:RDF>
             -->
 
-            {if $is_single_entry}
+            {if $is_single_entry and $entry.is_extended}
                 <div class="lead">
             {/if}
             {$entry.body}
-            {if $is_single_entry}
+            {if $is_single_entry and $entry.is_extended}
                 </div>
             {/if}
 
@@ -124,6 +126,8 @@
             {/if}
 
             {$entry.backend_preview}
+
+            </article>
 
         {/foreach}
     {foreachelse}
