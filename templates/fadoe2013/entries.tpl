@@ -11,20 +11,11 @@
 
             <h2><a href="{$entry.link}">{$entry.title|@default:$entry.body|truncate:200:" ..."}</a></h2>
 
-            <div class="pull-right entryinfo">
-                <ul class="unstyled">
-                    <li><span class="silk-user"></span> <a href="{$entry.link_author}">{$entry.author}</a></li>
-                    <li><span class="silk-calendar"></span> {$dategroup.date|@formatTime:DATE_FORMAT_ENTRY}, {$entry.timestamp|@formatTime:'%H:%M'} Uhr</li>
-                    {if $entry.categories}
-                    <li><span class="silk-text_list_bullets"></span> {foreach from=$entry.categories item="entry_category" name="categories"}<a href="{$entry_category.category_link}">{$entry_category.category_name|@escape}</a>{if not $smarty.foreach.categories.last}, {/if}{/foreach}</li>
-                    {/if}
-                    {if $entry.freetag.tags.tags}
-                    <li><span class="silk-tag_blue"></span> {foreach from=$entry.freetag.tags.tags item="tag" name="tags"}{$tag}{if not $smarty.foreach.tags.last}, {/if}{/foreach}</li>
-                    {/if}
-                    <li><span class="silk-comments"></span> <a href="{$entry.link}#comments">{$entry.comments} {$entry.label_comments}</a> / <a href="{$entry.link}#trackbacks">{$entry.trackbacks} {$entry.label_trackbacks}</a></li>
-                </ul>
-
-            </div>
+            <ul class="inline">
+                <li><span class="silk-calendar"></span> {$dategroup.date|@formatTime:DATE_FORMAT_ENTRY}, {$entry.timestamp|@formatTime:'%H:%M'} Uhr</li>
+                <li><span class="silk-user"></span> <a href="{$entry.link_author}">{$entry.author}</a></li>
+                <li><span class="silk-comments"></span> <a href="{$entry.link}#comments">{$entry.comments} {$entry.label_comments}</a> / <a href="{$entry.link}#trackbacks">{$entry.trackbacks} {$entry.label_trackbacks}</a></li>
+            </ul>
 
             <!--
             <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -56,6 +47,16 @@
                 </section>
             {/if}
 
+            <ul class="inline">
+                {if $entry.categories}
+                <li><span class="silk-text_list_bullets"></span> {foreach from=$entry.categories item="entry_category" name="categories"}<a href="{$entry_category.category_link}">{$entry_category.category_name|@escape}</a>{if not $smarty.foreach.categories.last}, {/if}{/foreach}</li>
+                {/if}
+                {if $entry.freetag.tags.tags}
+                <li><span class="silk-tag_blue"></span> {foreach from=$entry.freetag.tags.tags item="tag" name="tags"}{$tag}{if not $smarty.foreach.tags.last}, {/if}{/foreach}</li>
+                {/if}
+            </ul>
+
+
             {$entry.plugin_display_dat}
 
             {if $is_single_entry and not $is_preview}
@@ -84,7 +85,7 @@
 
                     <h3>{$CONST.TRACKBACKS}</h3>
 
-                    <p><span class="cus-link"></span> <a rel="nofollow" id="trackback-url" href="{$entry.link_trackback}" title="{$CONST.TRACKBACK_SPECIFIC_ON_CLICK|@escape}">{$CONST.TRACKBACK_SPECIFIC}</a></p>
+                    <p><span class="silk-world_link"></span> <a rel="nofollow" id="trackback-url" href="{$entry.link_trackback}" title="{$CONST.TRACKBACK_SPECIFIC_ON_CLICK|@escape}">{$CONST.TRACKBACK_SPECIFIC}</a></p>
 
                     {serendipity_printTrackbacks entry=$entry.id}
 
@@ -94,7 +95,7 @@
 
                     <h3>{$CONST.COMMENTS}</h3>
 
-                    <p><span class="cus-comments"></span> <a rel="nofollow" id="commentfeed-url" href="{$serendipityBaseURL}{$serendipityRewritePrefix}feeds/comments.rss2?cid={$entry.id}" title="Dieser Link ist nicht aktiv. Er enthält die URL zum Kommentar-Feed für diesen Eintrag.">Kommentar-Feed für diesen Eintrag</a></p>
+                    <p><span class="silk-feed"></span> <a rel="nofollow" id="commentfeed-url" href="{$serendipityBaseURL}{$serendipityRewritePrefix}feeds/comments.rss2?cid={$entry.id}" title="Dieser Link ist nicht aktiv. Er enthält die URL zum Kommentar-Feed für diesen Eintrag.">Kommentar-Feed für diesen Eintrag</a></p>
 
                     {serendipity_printComments entry=$entry.id mode=$entry.viewmode}
 

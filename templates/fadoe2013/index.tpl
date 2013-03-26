@@ -47,6 +47,7 @@
                         <nav class="nav-collapse collapse">
                             <ul class="nav">
                                 <li {if $startpage}class="active"{/if}><a href="{$serendipityBaseURL}">Blog</a></li>
+                                <li {if $archive}class="active"{/if}><a href="{$serendipityBaseURL}archive">{$CONST.ARCHIVES}</a></li>
                             </ul>
 
                             <form id="searchform" class="navbar-form form-search pull-right" action="{$serendipityHTTPPath}{$serendipityIndexFile}" method="get">

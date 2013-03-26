@@ -11,11 +11,13 @@ header {
 }
 
 header h3 {
+    padding-top:10px;
     border-bottom:1px solid #464646;
 }
 
 header h3, header h3 a {
     color:#fff;
+    padding-bottom:10px;
 }
 
 header p, header p a {
@@ -33,9 +35,13 @@ footer p {
 section#main {
     background-color:#fff;
 }
-h2, h3, h4 {
+
+h2 {
+    font-size:25px;
+}
+
+h2, h3 {
     border-bottom:1px solid #ffe99b;
-    color:#000;
 }
 
 .navbar-orange .navbar-inner {
@@ -47,11 +53,6 @@ h2, h3, h4 {
     background: -ms-linear-gradient(top,  #ffcb00 0%,#ffbb00 27%,#ff8f00 76%,#ff8000 100%);
     background: linear-gradient(to bottom,  #ffcb00 0%,#ffbb00 27%,#ff8f00 76%,#ff8000 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffcb00', endColorstr='#ff8000',GradientType=0 );
-}
-
-.navbar-orange .nav > li > a > [class^="icon-"],
-.navbar-orange .nav > li > a > [class*=" icon-"] {
-    background-image: url("../img/glyphicons-halflings-white.png");
 }
 
 .navbar-orange .nav > li > a {
@@ -94,4 +95,12 @@ h2, h3, h4 {
 
 .entryinfo ul {
     margin:5px;
+}
+
+.sidebar {
+    margin:10px;
+}
+
+.sidebar h4 {
+    border-bottom:none;
 }

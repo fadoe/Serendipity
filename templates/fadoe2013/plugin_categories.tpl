@@ -4,7 +4,7 @@
 
     <ul class="unstyled">
     {foreach from=$categories item="plugin_category"}
-        <li><span class="silk-feed"></span>
+        <li><a href="{$plugin_category.feedCategoryURL}" title="{$plugin_category.category_description|escape}"><span class="silk-feed"></span></a>
         {if $is_form}
             <input type="checkbox" name="serendipity[multiCat][]" value="{$plugin_category.categoryid}" />
         {/if}

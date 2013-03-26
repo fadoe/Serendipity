@@ -218,7 +218,7 @@ class serendipity_calendar_plugin extends serendipity_plugin {
         } else {
             $catid = false;
         }
-        
+
         if ($catid) {
             $base_query   = 'C' . $catid;
             $add_query    = '/' . $base_query;
@@ -477,7 +477,7 @@ class serendipity_archives_plugin extends serendipity_plugin {
         $ts = mktime(0, 0, 0, date('m'), 1);
 
         $add_query = '';
-        
+
         $category_set = isset($serendipity['GET']['category']);
         if ($category_set) {
             $base_query   = 'C' . (int)$serendipity['GET']['category'];
@@ -489,14 +489,14 @@ class serendipity_archives_plugin extends serendipity_plugin {
         $hide_zero_count = serendipity_db_bool($this->get_config('hide_zero_count', false));
         $freq = $this->get_config('frequency', 'months');
 
-        echo '<ul class="plainList">' . "\n";
-        
+        echo '<ul class="unstyled">' . "\n";
+
         if ($serendipity['dbType'] == 'sqlite' || $serendipity['dbType'] == 'sqlite3') {
             $dist_sql = 'count(e.id) AS orderkey';
         } else {
             $dist_sql = 'count(DISTINCT e.id) AS orderkey';
         }
-        
+
         for($x = 0; $x < $max_x; $x++) {
             $current_ts = $ts;
             switch($freq) {
@@ -586,18 +586,18 @@ class serendipity_archives_plugin extends serendipity_plugin {
                     if (empty($ec['orderkey'])) {
                         $ec['orderkey'] = '0';
                     }
-                    $hidden_by_zero_count = $hide_zero_count && ( $ec['orderkey'] == '0'); 
+                    $hidden_by_zero_count = $hide_zero_count && ( $ec['orderkey'] == '0');
                     $html_count .= ' (' . $ec['orderkey'] . ')';
                 }
             }
 
             if (!$hidden_by_zero_count) {
-                echo '<li><a href="' . $link . '" title="' . $ts_title . '">' . $ts_title . $html_count . '</a></li>' . "\n";
+                echo '<li><span class="silk-page"></span> <a href="' . $link . '" title="' . $ts_title . '">' . $ts_title . $html_count . '</a></li>' . "\n";
             }
         }
 
-        echo '<li><a href="'. $serendipity['serendipityHTTPPath'] . $serendipity['indexFile'] . '?frontpage">' . RECENT . '</a></li>' . "\n";
-        echo '<li><a href="'. serendipity_rewriteURL(PATH_ARCHIVE . $add_query) .'">' . OLDER . '</a></li>'. "\n";
+        //echo '<li><span class="silk-new"></span> <a href="'. $serendipity['serendipityHTTPPath'] . $serendipity['indexFile'] . '">' . RECENT . '</a></li>' . "\n";
+        echo '<li><span class="silk-book_open"></span> <a href="'. serendipity_rewriteURL(PATH_ARCHIVE . $add_query) .'">' . OLDER . '</a></li>'. "\n";
         echo '</ul>' . "\n";
     }
 }
@@ -844,10 +844,10 @@ class serendipity_syndication_plugin extends serendipity_plugin {
 
             case 'show_googlereader':
                 $radio = array();
-                
+
                 $radio['value'][] = 'true';
                 $radio['desc'][]  = YES;
-                
+
                 $radio['value'][] = 'false';
                 $radio['desc'][]  = NO;
 
