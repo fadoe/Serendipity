@@ -1,0 +1,4 @@
+Name: FaDoe 2.0
+Author: Falk Doering
+Date: 2008-03-26
+Require Serendipity: 0.8
