@@ -1,0 +1,14 @@
+{
+    "name": "fadoe/serendipity",
+    "description": "Serendipity Blog Engine",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Falk Doering",
+            "email": "falk.doering@fadoe.de"
+        }
+    ],
+    "require": {
+
+    }
+}
