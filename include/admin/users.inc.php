@@ -233,30 +233,25 @@ if (is_array($users)) {
 
 
 if ( ($serendipity['GET']['adminAction'] == 'edit' && serendipity_checkPermission('adminUsersDelete')) || (isset($_POST['NEW']) && serendipity_checkPermission('adminUsersCreateNew')) ) {
-?>
-<br />
-<br />
-<hr noshade="noshade">
-<form action="?serendipity[adminModule]=users#editform" method="post">
-<?php echo serendipity_setFormToken(); ?>
-    <div>
-    <h3>
-<?php
-if ($serendipity['GET']['adminAction'] == 'edit') {
-    echo '<a id="editform"></a>';
-    $user = serendipity_fetchUsers($serendipity['GET']['userid']);
-    $group_intersect = serendipity_intersectGroup($user[0]['authorid']);
-
-    if ($user[0]['userlevel'] >= $serendipity['serendipityUserlevel'] && $user[0]['authorid'] != $serendipity['authorid'] && !serendipity_checkPermission('adminUsersMaintainOthers')) {
-        echo '<strong>' . CREATE_NOT_AUTHORIZED . '</strong><br />';
-        echo EDIT;
-        $from = array();
-    } elseif (serendipity_checkPermission('adminUsersMaintainOthers') ||
-            (serendipity_checkPermission('adminUsersMaintainSame') && $group_intersect)) {
-        echo EDIT;
-        $from = &$user[0];
-        unset($from['password']);
-        echo '<input type="hidden" name="serendipity[user]" value="' . (int)$from['authorid'] . '" />';
+    $data['adminAction'] = $serendipity['GET']['adminAction'];
+    $data['show_form'] = true;
+    $data['formToken'] = serendipity_setFormToken();
+    
+    if ($serendipity['GET']['adminAction'] == 'edit') {
+        $user = serendipity_fetchUsers($serendipity['GET']['userid']);
+        $group_intersect = serendipity_intersectGroup($user[0]['authorid']);
+        if ($user[0]['userlevel'] >= $serendipity['serendipityUserlevel'] && $user[0]['authorid'] != $serendipity['authorid'] && !serendipity_checkPermission('adminUsersMaintainOthers')) {
+            $data['no_create_permission'] = true;
+            $from = array();
+        } elseif (serendipity_checkPermission('adminUsersMaintainOthers') ||
+                (serendipity_checkPermission('adminUsersMaintainSame') && $group_intersect)) {
+            $data['create_permission'] = true;
+            $from = &$user[0];
+            unset($from['password']);
+        } else {
+            
+            $from = array();
+        }
     } else {
         echo '<strong>' . CREATE_NOT_AUTHORIZED . '</strong><br />';
         echo EDIT;
@@ -308,6 +303,13 @@ if ($serendipity['GET']['adminAction'] == 'edit') { ?>
 <?php
     }
 }
+
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+
+echo serendipity_smarty_show('admin/users.inc.tpl', $data);
 
 /* vim: set sts=4 ts=4 expandtab : */
 ?>

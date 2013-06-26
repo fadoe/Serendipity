@@ -76,5 +76,11 @@ switch ($_POST['installAction'] && serendipity_checkFormToken()) {
         break;
 }
 
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+echo serendipity_smarty_show('admin/configuration.inc.tpl', $data);
+
 /* vim: set sts=4 ts=4 expandtab : */
 ?>

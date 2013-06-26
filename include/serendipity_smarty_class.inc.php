@@ -314,7 +314,7 @@ class Serendipity_Smarty extends Smarty
         
         // we use our own error_handler and get in conflicts with smarty?
         // $this->muteExpectedErrors();
-      } 
+    } 
       
     /*
         Note: Ian

@@ -271,30 +271,12 @@ if ( $serendipity['GET']['adminAction'] == 'view' ) {
     } else {
         echo '<div align="center">- '. NO_CATEGORIES .' -</div>';
     }
-?>
-<br /><br />
-<table cellspacing="0" cellpadding="4" width="100%" border=0>
-<?php
-            if ( is_array($cats) ) {
-                $categories = serendipity_walkRecursive($cats, 'categoryid', 'parentid', VIEWMODE_THREADED);
-                foreach ( $categories as $category ) {
-?>
-            <tr>
-                <td width="16"><a title="<?php echo EDIT ?>" href="?serendipity[adminModule]=category&amp;serendipity[adminAction]=edit&amp;serendipity[cid]=<?php echo $category['categoryid'] ?>"><img src="<?php echo serendipity_getTemplateFile('admin/img/edit.png') ?>" border="0" alt="<?php echo EDIT ?>" /></a></td>
-                <td width="16"><a title="<?php echo DELETE ?>" href="?serendipity[adminModule]=category&amp;serendipity[adminAction]=delete&amp;serendipity[cid]=<?php echo $category['categoryid'] ?>"><img src="<?php echo serendipity_getTemplateFile('admin/img/delete.png') ?>" border="0" alt="<?php echo DELETE ?>" /></a></td>
-                <td width="16"><?php if ( !empty($category['category_icon']) ) {?><img src="<?php echo serendipity_getTemplateFile('admin/img/thumbnail.png') ?>" alt="" /><?php } else echo '&nbsp;' ?></td>
-                <td width="300" style="padding-left: <?php echo ($category['depth']*15)+20 ?>px"><img src="<?php echo serendipity_getTemplateFile('admin/img/folder.png') ?>" style="vertical-align: bottom;"> <?php echo htmlspecialchars($category['category_name']) ?></td>
-                <td><?php echo htmlspecialchars($category['category_description']) ?></td>
-                <td align="right"><?php echo ($category['authorid'] == '0' ? ALL_AUTHORS : htmlspecialchars($category['realname'])); ?></td>
-            </tr>
-<?php           }
-            } ?>
-            <tr>
-                <td colspan="6" align="right">
-                    <a href="?serendipity[adminModule]=category&serendipity[adminAction]=new" class="serendipityPrettyButton input_button"><?php echo CREATE_NEW_CAT ?></a>
-                </td>
-            </tr>
-</table>
-<?php }
+}
+
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+echo serendipity_smarty_show('admin/category.inc.tpl', $data);
 
 /* vim: set sts=4 ts=4 expandtab : */

@@ -105,23 +105,22 @@
             {rdelim}
         {/if}
 
-        {if $media.case == 'tree'}
-            var toggle_state = 'expand';
-            function treeToggleAll() {ldelim}
-                if (toggle_state == 'expand') {ldelim}
-                    toggle_state = 'collapse';
-                    tree.expandAll();
-                {rdelim} else {ldelim}
-                    toggle_state = 'expand';
-                    tree.collapseAll();
-                    coreNode.expand();
-                {rdelim}
-            {rdelim}
-        {/if}
 
+        <script type="text/javascript">
+            var media_token_url = '{$media.token_url}';
+            var media_rename = '{$CONST.ENTER_NEW_NAME}';
+
+        {if $media.only_path}
+            if (parent.frames && parent.frames['tree']) { 
+                parent.frames['tree'].document.getElementById('newdirlink').href =
+                    parent.frames['tree'].basenewdirurl +
+                    "{$media.only_path|@escape}"
+            } 
+        {/if}
     </script>
     </head>
 
+    </head>
 {if $media.frameset}
     <frameset id="media_frame" cols="20%,*">
         <frame id="media_frame_tree" frameborder="0" name="tree" scrolling="auto" src="{$serendipityHTTPPath}serendipity_admin_image_selector.php?{$media.GET_STRING}&amp;serendipity[step]=tree" />
@@ -223,8 +222,8 @@
                     <b>{$CONST.IMAGE_AS_A_LINK}:</b>
                     <br />
 
-                    <input class="input_radio" type="radio" id="radio_islink_yes" type="radio" name="serendipity[isLink]" value="yes" {'isLink'|@ifRemember:'yes':true} /><label for="radio_islink_yes"> {$CONST.I_WANT_NO_LINK}</label><br />
-                    <input class="input_radio" type="radio" id="radio_islink_no"  type="radio" name="serendipity[isLink]" value="no"  {'isLink'|@ifRemember:'no'} /><label for="radio_islink_no"> {$CONST.I_WANT_IT_TO_LINK}</label>
+                    <input class="input_radio" type="radio" id="radio_islink_no" type="radio" name="serendipity[isLink]" value="no" {'isLink'|@ifRemember:'no':true} /><label for="radio_islink_no"> {$CONST.I_WANT_NO_LINK}</label><br />
+                    <input class="input_radio" type="radio" id="radio_islink_yes"  type="radio" name="serendipity[isLink]" value="yes"  {'isLink'|@ifRemember:'yes'} /><label for="radio_islink_yes"> {$CONST.I_WANT_IT_TO_LINK}</label>
                     {if $media.file.hotlink}
 
                     <input class="input_textbox" type="text"  name="serendipity[url]" size="30" value="{$media.file.path}" /><br />
@@ -233,7 +232,7 @@
                         <input class="input_textbox" type="text"  name="serendipity[url]" size="30" value="{$media.file.links.imagelinkurl}" /><br />
                     {/if}
 
-                    <label id="select_image_target">{$CONST.MEDIA_TARGET}</label>
+                    <label for="select_image_target">{$CONST.MEDIA_TARGET}</label>
                         <select name="serendipity[target]" id="select_image_target">
                             <option value="none"   {'target'|@ifRemember:'none':false:'selected'}>{$CONST.NONE}</option>
                             <option value="js"     {'target'|@ifRemember:'js':false:'selected'}>{$CONST.MEDIA_TARGET_JS}</option>
@@ -316,37 +315,37 @@
         var tree;
         var nodes = new Array();
         var nodeIndex;
-        var coreNode = '';
-        var last_path = '';
-        var last_node = new Array();
+        var coreNode      = '';
+        var last_path     = '';
+        var last_node     = new Array();
         var baseurl       = '{$serendipityHTTPPath}serendipity_admin_image_selector.php?{$media.GET_STRING}&amp;serendipity[step]=default&amp;serendipity[only_path]=';
-        var basenewdirurl = '{$serendipityHTTPPath}serendipity_admin_image_selector.php?{$media.GET_STRING}&amp;serendipity[step]=directoryCreate&amp;&amp;serendipity[only_path]=';
+        var basenewdirurl = '{$serendipityHTTPPath}serendipity_admin_image_selector.php?{$media.GET_STRING}&amp;serendipity[step]=directoryCreate&amp;serendipity[only_path]=';
 
-        function treeInit() {ldelim}
+        function treeInit() { 
             tree = new YAHOO.widget.TreeView("treeDiv1");
-            tree.onExpand = function(node) {ldelim}
+            tree.onExpand = function(node) { 
                 document.getElementById('newdirlink').href = basenewdirurl + node.data.relpath;
-            {rdelim};
+            };
 
             coreNode          = new YAHOO.widget.TextNode("{$CONST.MEDIA}", tree.getRoot(), false);
             coreNode.href     = baseurl;
             coreNode.target   = 'media';
             coreNode.expanded = true;
-            {foreach from=$media.paths item="item" key="id"}
-                mydir = {ldelim} id: "{$id}", label: "{$item.name}", target : "media", href: baseurl + "{$item.relpath}", relpath: "{$item.relpath}" {rdelim};
-                {if $item.depth == 1}
-                    tmpNode = new YAHOO.widget.TextNode(mydir, coreNode, false);
-                {else}
-                    if (last_node[{$item.depth}-1]) {ldelim}
-                        tmpNode = new YAHOO.widget.TextNode(mydir, last_node[{$item.depth} - 1], false);
-                    {rdelim} else {ldelim}
-                        tmpNode = new YAHOO.widget.TextNode(mydir, coreNode, false);
-                    {rdelim}
-                {/if}
-                last_node[{$item.depth}] = tmpNode;
-            {/foreach}
+        {foreach from=$media.paths item="item" key="id"}
+            mydir = { id: "{$id}", label: "{$item.name}", target : "media", href: baseurl + "{$item.relpath}", relpath: "{$item.relpath}" };
+        {if $item.depth == 1}
+            tmpNode = new YAHOO.widget.TextNode(mydir, coreNode, false);
+        {else}
+            if (last_node[{$item.depth}-1]) { 
+                tmpNode = new YAHOO.widget.TextNode(mydir, last_node[{$item.depth} - 1], false);
+            } else { 
+                tmpNode = new YAHOO.widget.TextNode(mydir, coreNode, false);
+            } 
+        {/if}
+            last_node[{$item.depth}] = tmpNode;
+        {/foreach}
             tree.draw();
-        {rdelim}
+        } 
 
         addLoadEvent(treeInit);
     </script>

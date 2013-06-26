@@ -23,6 +23,10 @@ if (defined('S9Y_DATA_PATH')) {
     $basedir = serendipity_query_default('serendipityPath', false);
 }
 
+$data['basedir'] = $basedir;
+$data['phpversion'] = phpversion();
+$data['versionInstalled'] = $serendipity['versionInstalled'];
+
 /**
  * Checks a return code constant if it's successfull or an error and return HTML code
  *
@@ -562,12 +566,31 @@ if ( (int)$serendipity['GET']['step'] == 0 ) {
     }
 
     if ( serendipity_updateConfiguration() ) {
-        echo '<div class="serendipityAdminMsgSuccess"><img style="height: 22px; width: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="' . serendipity_getTemplateFile('admin/img/admin_msg_success.png'). '" alt="" />' . SERENDIPITY_INSTALLED .'</div>';
-        echo '<div align="center" style="font-size: large"><a href="'. $_POST['serendipityHTTPPath'] .'">'. VISIT_BLOG_HERE .'</a></div>';
-        echo '<div align="center">'. THANK_YOU_FOR_CHOOSING .'</div>';
-    } else {
-        echo '<div class="serendipityAdminMsgError"><img style="height: 22px; width: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="' . serendipity_getTemplateFile('admin/img/admin_msg_error.png') . '" alt="" />'. ERROR_DETECTED_IN_INSTALL .'</div>';
-    }
+        $data['s9y_installed'] = true;
+    } 
 }
+
+
+
+include_once  dirname(dirname(__FILE__)) . "/functions.inc.php";
+
+
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+
+
+$serendipity['smarty']->assign($data);
+$tfile = serendipity_getTemplateFile("admin/installer.inc.tpl");
+
+ob_start();
+include $tfile;
+$content = ob_get_contents();
+ob_end_clean();
+
+// eval a string template and do not store compiled code
+echo $serendipity['smarty']->display('eval:'.$content);
+
 
 /* vim: set sts=4 ts=4 expandtab : */

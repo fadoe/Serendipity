@@ -466,6 +466,7 @@ foreach ($sql as $rs) {
         $header_class = '';
     }
 
+echo serendipity_smarty_show('admin/comments.inc.tpl', $data);
 
     if (!empty($comment['url']) && substr($comment['url'], 0, 7) != 'http://' &&
          substr($comment['url'], 0, 8) != 'https://') {

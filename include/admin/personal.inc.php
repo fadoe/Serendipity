@@ -115,4 +115,11 @@ serendipity_printConfigTemplate($template, $from, true, false);
 
 $add = array('internal' => true);
 serendipity_plugin_api::hook_event('backend_sidebar_entries_event_display_profiles', $from, $add);
+
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+echo serendipity_smarty_show('admin/personal.inc.tpl', $data);
+
 /* vim: set sts=4 ts=4 expandtab : */

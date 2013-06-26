@@ -363,6 +363,15 @@ if (preg_match(PAT_ARCHIVES, $uri, $matches) || isset($serendipity['GET']['range
 
     print $data;
     exit;
+} else if (preg_match(PAT_PLUGIN, $uri, $matches)) {
+    $serendipity['view'] = 'plugin';
+    include(S9Y_INCLUDE_PATH . 'include/genpage.inc.php');
+
+    #echo $serendipity["handler"]["test.js"];
+    serendipity_plugin_api::hook_event('external_plugin', $matches[2]);
+    if (!defined('NO_EXIT')) {
+        exit;
+    }
 } else if (preg_match(PAT_ADMIN, $uri)) {
     $serendipity['view'] = 'admin';
     $base = $serendipity['baseURL'];
@@ -398,12 +407,6 @@ if (preg_match(PAT_ARCHIVES, $uri, $matches) || isset($serendipity['GET']['range
     }
 
     include(S9Y_INCLUDE_PATH . 'include/genpage.inc.php');
-} else if (preg_match(PAT_PLUGIN, $uri, $matches)) {
-    $serendipity['view'] = 'plugin';
-    serendipity_plugin_api::hook_event('external_plugin', $matches[2]);
-    if (!defined('NO_EXIT')) {
-        exit;
-    }
 } else if ($is_multicat || preg_match(PAT_PERMALINK_CATEGORIES, $uri, $matches)) {
     $serendipity['view'] = 'categories';
 
@@ -456,6 +459,9 @@ if (preg_match(PAT_ARCHIVES, $uri, $matches) || isset($serendipity['GET']['range
         header('Status: 404 Not found');
     } else {
         $serendipity['head_title']    = $cInfo['category_name'];
+        if (isset($serendipity['GET']['page'])) {
+            $serendipity['head_title'] .= " - " . htmlspecialchars($serendipity['GET']['page']);
+        }
         $serendipity['head_subtitle'] = $serendipity['blogTitle'];
     }
 
@@ -542,6 +548,22 @@ if (preg_match(PAT_ARCHIVES, $uri, $matches) || isset($serendipity['GET']['range
     $css_mode = $matches[1];
     include(S9Y_INCLUDE_PATH . 'serendipity.css.php');
     exit;
+} elseif (preg_match(PAT_JS, $uri, $matches)) {
+    $serendipity['view'] = 'js';
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
+        header('Cache-Control: no-cache');
+    } else {
+        header('Cache-Control:');
+        header('Pragma:');
+        header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time()+3600));
+    }
+
+    header('Content-type: application/javascript; charset=' . LANG_CHARSET);
+
+    $out = "";
+    serendipity_plugin_api::hook_event('js', $out);
+    echo $out;
+    exit;
 } else if (preg_match(PAT_COMMENTS, $uri, $matches)) {
     $serendipity['view'] = 'comments';
     $_args = serendipity_getUriArguments($uri, true); // Need to also match "." character
@@ -599,6 +621,8 @@ if (preg_match(PAT_ARCHIVES, $uri, $matches) || isset($serendipity['GET']['range
     $serendipity['head_subtitle'] = $serendipity['blogTitle'];
     $serendipity['GET']['action']     = 'comments';
     include(S9Y_INCLUDE_PATH . 'include/genpage.inc.php');
+
+
 } else if (preg_match('@/(index(\.php|\.html)?)|'. preg_quote($serendipity['indexFile']) .'@', $uri) ||
            preg_match('@^/' . preg_quote(trim($serendipity['serendipityHTTPPath'], '/')) . '/?(\?.*)?$@', $uri)) {
 

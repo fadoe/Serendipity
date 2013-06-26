@@ -6,11 +6,6 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-if (defined('S9Y_FRAMEWORK_PERMALINKS')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_PERMALINKS', true);
-
 /**
  * Converts a string into a filename that can be used safely in HTTP URLs
  *
@@ -264,6 +259,7 @@ function serendipity_initPermalinks() {
     @define('PAT_FILENAME_MATCH', '[' . PAT_FILENAME . ']+');
     @define('PAT_DIRNAME_MATCH',  '[' . PAT_FILENAME . '/]*');
     @define('PAT_CSS',            '@/(serendipity\.css|serendipity_admin\.css)@');
+    @define('PAT_JS',             '@/(serendipity\.js|serendipity_admin\.js)@');
     @define('PAT_FEED',           '@/(index|atom[0-9]*|rss|b2rss|b2rdf).(rss|rdf|rss2|xml)@');
     @define('PAT_COMMENTSUB',     '@/([0-9]+)[_\-][' . PAT_FILENAME . ']*\.html@i');
 

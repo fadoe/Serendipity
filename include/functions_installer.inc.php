@@ -6,11 +6,6 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-if (defined('S9Y_FRAMEWORK_INSTALLER')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_INSTALLER', true);
-
 /**
  * Convert a PHP Ini setting to a boolean flag
  *
@@ -389,114 +384,51 @@ function serendipity_replaceEmbeddedConfigVars ($s) {
  */
 
 function serendipity_guessInput($type, $name, $value='', $default='') {
-    global $serendipity;
-
+    $data = array();
+    $curOptions = array();
+    
     switch ($type) {
         case 'bool':
             $value = serendipity_get_bool($value);
             if ($value === null) {
                 $value = $default;
             }
-            
-            echo '<input class="input_radio" id="radio_cfg_' . $name . '_yes" type="radio" name="' . $name . '" value="true" ';
-            echo (($value == true) ? 'checked="checked"' : ''). ' /><label for="radio_cfg_' . $name . '_yes"> ' . YES . '</label>&nbsp;';
-            echo '<input class="input_radio" id="radio_cfg_' . $name . '_no" type="radio" name="' . $name . '" value="false" ';
-            echo (($value == true) ? '' : 'checked="checked"'). ' /><label for="radio_cfg_' . $name . '_no"> ' . NO . '</label>';
-            break;
-
-        case 'fullprotected':
-            echo '<input autocomplete="off" class="input_textbox" type="password" size="30" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
-            break;
-
-        case 'protected':
-            echo '<input class="input_textbox" type="password" size="30" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
             break;
 
         case 'multilist':
-            echo '<select name="'. $name .'[]" multiple="multiple" size="5">';
-
-            foreach ((array)$default as $k => $v) {
+            $default = (array)$default;
+            $value = (array)$value;
+            foreach ($default as $k => $v) {
                 $selected = false;
-                foreach((array)$value AS $vk => $vv) {
+                foreach($value AS $vk => $vv) {
                     if ($vv['confkey'] == $v['confkey']) {
                         $selected = true;
                     }
                 }
-
-                printf('<option value="%s"%s>%s</option>'. "\n",
-                      $v['confkey'],
-                      ($selected ? ' selected="selected"' : ''),
-                      $v['confvalue']);
+                $curOptions[$name][$k]['selected'] = $selected;
             }
-            echo '</select>';
             break;
 
         case 'list':
-            echo '<select name="'. $name .'">';
             $cval = (string)$value;
-            foreach ((array)$default as $k => $v) {
+            $default = (array)$default;
+            foreach ($default as $k => $v) {
                 $selected = ((string)$k == (string)$value);
                 if (empty($cval) && ((string)$k === 'false' || (string)$k === null)) {
                     $selected = true;
                 }
-
-                printf('<option value="%s"%s>%s</option>'. "\n",
-                      $k,
-                      ($selected ? ' selected="selected"' : ''),
-                      $v);
+                $curOptions[$name][$k]['selected'] = $selected;
             }
-            echo '</select>';
-            break;
-
-        case 'file':
-            echo '<input class="input_file" type="file" size="30" name="' . $name . '" />';
-            break;
-
-        case 'textarea':
-            echo '<textarea rows="5" cols="40" name="' . $name . '">' . htmlspecialchars($value) . '</textarea>';
-            break;
-
-        default:
-            echo '<input class="input_textbox" type="text" size="30" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
             break;
     }
-}
 
-function serendipity_printConfigJS($folded = true) {
-?>
-<script type="text/javascript" language="JavaScript">
-function showConfig(id) {
-    if (document.getElementById) {
-        el = document.getElementById(id);
-        if (el.style.display == 'none') {
-            document.getElementById('option' + id).src = '<?php echo serendipity_getTemplateFile('img/minus.png') ?>';
-            el.style.display = '';
-        } else {
-            document.getElementById('option' + id).src = '<?php echo serendipity_getTemplateFile('img/plus.png') ?>';
-            el.style.display = 'none';
-        }
-    }
-}
+    $data['type'] = $type;
+    $data['name'] = $name;
+    $data['value'] = $value;
+    $data['default'] = $default;
+    $data['selected'] = $curOptions;
 
-var state='<?php echo ($folded === true ? '' : 'none'); ?>';
-function showConfigAll(count) {
-    if (document.getElementById) {
-        for (i = 1; i <= count; i++) {
-            document.getElementById('el' + i).style.display = state;
-            document.getElementById('optionel' + i).src = (state == '' ? '<?php echo serendipity_getTemplateFile('img/minus.png') ?>' : '<?php echo serendipity_getTemplateFile('img/plus.png') ?>');
-        }
-
-        if (state == '') {
-            document.getElementById('optionall').src = '<?php echo serendipity_getTemplateFile('img/minus.png') ?>';
-            state = 'none';
-        } else {
-            document.getElementById('optionall').src = '<?php echo serendipity_getTemplateFile('img/plus.png') ?>';
-            state = '';
-        }
-    }
-}
-</script>
-<?php
+    return serendipity_smarty_show('admin/guess_input.tpl', $data);
 }
 
 /**
@@ -513,55 +445,14 @@ function showConfigAll(count) {
  */
 function serendipity_printConfigTemplate($config, $from = false, $noForm = false, $folded = true, $allowToggle = true, $showDangerous = false) {
     global $serendipity;
-
-    if ($allowToggle) {
-        serendipity_printConfigJS($folded);
-    }
-
-    if (!$noForm) {
-?>
-<form action="?" method="POST">
-    <div>
-        <input type="hidden" name="serendipity[adminModule]" value="installer" />
-        <input type="hidden" name="installAction" value="check" />
-        <?php echo serendipity_setFormToken(); ?>
-        <br />
-<?php   }
-    if (sizeof($config) > 1 && $allowToggle) { ?>
-        <div align="right">
-            <a style="border:0; text-decoration: none" href="#" onClick="showConfigAll(<?php echo sizeof($config); ?>)" title="<?php echo TOGGLE_ALL; ?>"><img src="<?php echo serendipity_getTemplateFile('img/'. ($folded === true ? 'plus' : 'minus') .'.png') ?>" id="optionall" alt="+/-" border="0" />&nbsp;<?php echo TOGGLE_ALL; ?></a></a><br />
-        </div>
-<?php
-    }
-    $el_count = 0;
-    foreach ($config as $category) {
-        $el_count++;
-?>
-        <table width="100%" cellspacing="2">
-<?php
-        if (sizeof($config) > 1) {
-?>
-            <tr>
-                <th align="left" colspan="2" style="padding-left: 15px;">
-<?php if ($allowToggle) { ?>
-                    <a style="border:0; text-decoration: none;" href="#" onClick="showConfig('el<?php echo $el_count; ?>'); return false" title="<?php echo TOGGLE_OPTION; ?>"><img src="<?php echo serendipity_getTemplateFile('img/'. ($folded === true ? 'plus' : 'minus') .'.png') ?>" id="optionel<?php echo $el_count; ?>" alt="+/-" border="0" />&nbsp;<?php echo $category['title']; ?></a>
-<?php } else { ?>
-                    <?php echo $category['title']; ?>
-<?php } ?>
-                </th>
-            </tr>
-<?php   } ?>
-            <tr>
-                <td>
-                    <table width="100%" cellspacing="0" cellpadding="3" id="el<?php echo $el_count; ?>">
-                        <tr>
-                            <td style="padding-left: 20px;" colspan="2">
-                                <?php echo $category['description'] ?>
-                            </td>
-                        </tr>
-
-<?php
-        foreach ($category['items'] as $item) {
+    $data = array();
+    $data['noForm'] = $noForm;
+    $data['formToken'] = serendipity_setFormToken();
+    
+    $data['allowToggle'] = $allowToggle;
+    
+    foreach ($config as &$category) {
+        foreach ($category['items'] as &$item) {
 
             $value = $from[$item['var']];
 
@@ -598,42 +489,11 @@ function serendipity_printConfigTemplate($config, $from = false, $noForm = false
             if (in_array('ifEmpty', $item['flags']) && empty($value)) {
                 $value = serendipity_query_default($item['var'], $item['default']);
             }
-?>
-                        <tr>
-                            <td style="border-bottom: 1px #000000 solid" align="left" valign="top" width="75%">
-                                <strong><?php echo $item['title']; ?></strong>
-                                <br />
-                                <span style="color: #5E7A94; font-size: 8pt;"><?php echo $item['description']; ?></span>
-                            </td>
-                            <td style="border-bottom: 1px #000000 solid; font-size: 8pt" align="left" valign="middle" width="25%">
-                                <span style="white-space: nowrap"><?php serendipity_guessInput($item['type'], $item['var'], $value, $item['default']); ?></span>
-                            </td>
-                        </tr>
-<?php
+            $item['guessedInput'] = serendipity_guessInput($item['type'], $item['var'], $value, $item['default']);
         }
-?>
-                    </table><br /><br />
-                </td>
-            </tr>
-        </table>
-<?php
     }
-
-    if ($folded && $allowToggle) {
-        echo '<script type="text/javascript" language="JavaScript">';
-        for ($i = 1; $i <= $el_count; $i++) {
-            echo 'document.getElementById("el' . $i . '").style.display = "none";' . "\n";
-        }
-        echo '</script>';
-    }
-
-    if (!$noForm) {
-?>
-        <input type="submit" value="<?php echo CHECK_N_SAVE; ?>" class="serendipityPrettyButton input_button" />
-    </div>
-</form>
-<?php
-    }
+    $data['config'] = $config;
+    echo serendipity_smarty_show('admin/config_template.tpl', $data);
 }
 
 /**
@@ -1334,4 +1194,22 @@ function serendipity_verifyFTPChecksums() {
 
     return $badsums;
 }
+
+function serendipity_getCurrentVersion() {
+    $updateURL = 'https://raw.github.com/s9y/Serendipity/master/docs/RELEASE';
+
+    $file = fopen($updateURL, 'r');
+    if (!$file) {
+        return;
+    }
+
+    while (!feof($file)) {
+        $line = fgets($file);
+
+        if (preg_match('/stable:(.+$)/', $line, $match)) {
+            return $match[1];
+        }
+    }
+}
+
 /* vim: set sts=4 ts=4 sw=4 expandtab : */

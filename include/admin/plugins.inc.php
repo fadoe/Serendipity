@@ -11,7 +11,6 @@ if (!serendipity_checkPermission('adminPlugins')) {
 }
 
 include_once S9Y_INCLUDE_PATH . 'include/plugin_api.inc.php';
-include_once S9Y_INCLUDE_PATH . 'include/plugin_internal.inc.php';
 include_once S9Y_INCLUDE_PATH . 'include/functions_entries_admin.inc.php';
 include_once S9Y_INCLUDE_PATH . 'include/functions_plugins_admin.inc.php';
 
@@ -159,29 +158,8 @@ if (isset($_GET['serendipity']['plugin_to_conf'])) {
                     echo '<br /><a href="plugins/' . $plugin->act_pluginPath . '/ChangeLog">' . PLUGIN_DOCUMENTATION_CHANGELOG . '</a>';
                 }
 
-                if (@file_exists(dirname($plugin->pluginFile) . '/documentation_' . $serendipity['lang'] . '.html')) {
-                    echo '<br /><a href="plugins/' . $plugin->act_pluginPath . '/documentation_' . $serendipity['lang'] . '.html">' . PLUGIN_DOCUMENTATION_LOCAL . '</a>';
-                } elseif (@file_exists(dirname($plugin->pluginFile) . '/documentation_en.html')) {
-                    echo '<br /><a href="plugins/' . $plugin->act_pluginPath . '/documentation_en.html">' . PLUGIN_DOCUMENTATION_LOCAL . '</a>';
-                } elseif (@file_exists(dirname($plugin->pluginFile) . '/documentation.html')) {
-                    echo '<br /><a href="plugins/' . $plugin->act_pluginPath . '/documentation.html">' . PLUGIN_DOCUMENTATION_LOCAL . '</a>';
-                } elseif (@file_exists(dirname($plugin->pluginFile) . '/README')) {
-                    echo '<br /><a href="plugins/' . $plugin->act_pluginPath . '/README">' . PLUGIN_DOCUMENTATION_LOCAL . '</a>';
-                }
-            ?>
-            </td>
-        </tr>
-         <?php
-            if (!empty($license)) {
-                echo '<tr><th>'.MEDIA_PROPERTY_COPYRIGHT.'</th><td>'.$license.'</td></tr>';
-            }
-        ?>
-    </table>
-<br />
-
-<?php serendipity_plugin_config($plugin, $bag, $name, $desc, $config_names, true, true, true, true, 'plugin', $config_groups); ?>
-</form>
-<?php
+    $data['license'] = $license;
+    $data['config'] = serendipity_plugin_config($plugin, $bag, $name, $desc, $config_names, true, true, true, true, 'plugin', $config_groups);
 
 } elseif ( $serendipity['GET']['adminAction'] == 'addnew' ) {
 ?>
@@ -276,9 +254,8 @@ if (isset($_GET['serendipity']['plugin_to_conf'])) {
     }
     ksort($pluggroups);
 
-    foreach($errorstack as $e_idx => $e_name) {
-        echo ERROR . ': ' . $e_name . '<br />';
-    }
+    $data['count_pluginstack'] = count($pluginstack);
+    $data['errorstack'] = $errorstack;
 
     if ($serendipity['GET']['only_group'] == 'UPGRADE') {
         serendipity_plugin_api::hook_event('backend_pluginlisting_header_upgrade', $pluggroups);
@@ -453,46 +430,25 @@ if (isset($_GET['serendipity']['plugin_to_conf'])) {
         $col_assoc[$sidebar . '_col'] = $sidebar;
     }
 
-    /* preparse Javascript-generated input */
-    if (isset($_POST['SAVE']) && !empty($_POST['serendipity']['pluginorder'])) {
-        $parts = explode(':', $_POST['serendipity']['pluginorder']);
-
-        foreach($parts AS $sidepart) {
-            preg_match('@^(.+)\((.*)\)$@imsU', $sidepart, $matches);
-            if (!isset($col_assoc[$matches[1]])) {
-                continue;
-            }
-            $pluginsidelist = explode(',', $matches[2]);
-            foreach($pluginsidelist AS $pluginname) {
-                $pluginname = trim(urldecode(str_replace(array('s9ycid', '-'), array('', '%'), $pluginname)));
-
-                if (empty($pluginname)) {
-                    continue;
-                }
-                $serendipity['POST']['placement'][$pluginname] = $col_assoc[$matches[1]];
-                $new_order[] = $pluginname;
-
-            }
-        }
-
-        if (is_array($new_order)) {
-            foreach($new_order AS $new_order_pos => $order_plugin) {
-                serendipity_db_query("UPDATE {$serendipity['dbPrefix']}plugins SET sort_order = ". (int)$new_order_pos . " WHERE name='" . serendipity_db_escape_string($order_plugin) . "'");
-            }
-        }
-    }
-
-    if (isset($_POST['SAVE']) && isset($_POST['serendipity']['placement']) && serendipity_checkFormToken()) {
-        foreach ($_POST['serendipity']['placement'] as $plugin_name => $placement) {
+    if (isset($_POST['SAVE'])  && serendipity_checkFormToken()) {
+        $pos=0;
+        foreach($_POST['serendipity']['plugin'] as $plugin) {
+            serendipity_db_query("UPDATE {$serendipity['dbPrefix']}plugins
+                                        SET
+                                    sort_order = ".  $pos . "
+                                WHERE
+                                    name='" . serendipity_db_escape_string($plugin['id']) . "'");
+        
             serendipity_plugin_api::update_plugin_placement(
-                addslashes($plugin_name),
-                addslashes($placement)
+                addslashes($plugin['id']),
+                addslashes($plugin['placement'])
             );
 
             serendipity_plugin_api::update_plugin_owner(
-                addslashes($plugin_name),
-                addslashes($_POST['serendipity']['ownership'][$plugin_name])
+                addslashes($plugin['id']),
+                addslashes($_POST['serendipity']['ownership'][$plugin['name']])
             );
+            $pos++;
         }
     }
 
@@ -542,7 +498,17 @@ if (isset($_GET['serendipity']['plugin_to_conf'])) {
             }
         }
     }
-?>
+    if (isset($_POST['SAVE'])) {
+        $data['save'] = true;
+        $data['timestamp'] = serendipity_strftime('%H:%M:%S');
+    }   
+    
+    serendipity_plugin_api::hook_event("backend_pluginlisting_header", $null);
+
+    ob_start();
+    serendipity_plugin_api::hook_event('backend_plugins_sidebar_header', $serendipity);
+    $data['backend_plugins_sidebar_header'] = ob_get_contents();
+    ob_end_clean();
 
 <?php if (isset($_POST['SAVE'])) { ?>
     <div class="serendipityAdminMsgSuccess"><img style="width: 22px; height: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="<?php echo serendipity_getTemplateFile('admin/img/admin_msg_success.png'); ?>" alt="" /><?php echo DONE .': '. sprintf(SETTINGS_SAVED_AT, serendipity_strftime('%H:%M:%S')); ?></div>
@@ -580,4 +546,7 @@ if (isset($_GET['serendipity']['plugin_to_conf'])) {
     <?php } ?>
 <?php
 }
+
+echo serendipity_smarty_show('admin/plugins.inc.tpl', $data);
+
 /* vim: set sts=4 ts=4 expandtab : */

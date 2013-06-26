@@ -6,10 +6,12 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-?>
-  <div>
-    <a href="<?php echo $serendipity['baseURL'] ?>rss.php?version=2.0&all=1" class="serendipityPrettyButton input_button"><?php echo EXPORT_FEED; ?></a>
-  </div>
-<?php
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+echo serendipity_smarty_show('admin/export.inc.tpl');
+
+
 /* vim: set sts=4 ts=4 expandtab : */
 ?>

@@ -258,5 +258,7 @@ if ($serendipity['GET']['adminAction'] == 'edit') { ?>
 <?php
 }
 
+echo serendipity_smarty_show('admin/groups.inc.tpl', $data);
+
 /* vim: set sts=4 ts=4 expandtab : */
 ?>

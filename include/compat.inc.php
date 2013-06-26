@@ -6,11 +6,6 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-if (defined('S9Y_FRAMEWORK_COMPAT')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_COMPAT', true);
-
 $serendipity = array();
 @ini_set('magic_quotes_runtime', 'off');
 
@@ -123,7 +118,7 @@ if (!function_exists('errorToExceptionHandler')) {
         if ($serendipity['production'] === false) { 
             echo '<p> == TESTING ERROR MODE == </p>';
             echo '<pre>';
-            // debugbacktrace is nice, but additional it is good to have the verbosity of SPL EXCEPTIONS, except for db connect errors
+            // it is good to have the verbosity of SPL EXCEPTIONS, except for db connect errors
             if (!$serendipity['dbConn']) {
                 echo '<p>' . $errStr . ' in ' . $errFile . ' on line ' . $errLine . '</p>';
             } else {
@@ -363,7 +358,7 @@ function serendipity_detectLang($use_include = false) {
             $preferred_language = strtolower(preg_replace('@^([^\-_;]*)_?.*$@', '\1', $lang));
             if (in_array($preferred_language, $supported_languages)) {
                 if ($use_include) {
-                    @include(S9Y_INCLUDE_PATH . 'lang/' . $charset . 'serendipity_lang_' . $preferred_language . '.inc.php');
+                    @include_once(S9Y_INCLUDE_PATH . 'lang/' . $charset . 'serendipity_lang_' . $preferred_language . '.inc.php');
                     $serendipity['autolang'] = $preferred_language;
                 }
                 return $preferred_language;

@@ -215,7 +215,13 @@ if (isset($serendipity['GET']['importFrom']) && serendipity_checkFormToken()) {
         if ( ($result = $importer->import()) !== true ) {
             echo IMPORT_FAILED .': '. $result . '<br />';
         } else {
-            echo IMPORT_DONE . '<br />';
+            $data['formToken'] = serendipity_setFormToken();
+            $fields = $importer->getInputFields();
+            foreach ($fields as &$field ) {
+                $field['guessedInput'] = serendipity_guessInput($field['type'], 'serendipity[import]['. $field['name'] .']', (isset($serendipity['POST']['import'][$field['name']]) ? $serendipity['POST']['import'][$field['name']] : $field['default']), $field['default']);
+            }
+            $data['fields'] = $fields;
+            $data['notes'] = $importer->getImportNotes();
         }
 
 
@@ -288,5 +294,12 @@ if (isset($serendipity['GET']['importFrom']) && serendipity_checkFormToken()) {
 </form>
 <?php
 }
+
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+echo serendipity_smarty_show('admin/import.inc.tpl', $data);
+
 
 /* vim: set sts=4 ts=4 expandtab : */

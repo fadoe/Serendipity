@@ -179,11 +179,6 @@ $tasks = array(array('version'   => '0.5.1',
                      'arguments' => array('serendipity_event_browsercompatibility'),
                      'title'     => 'Remove obsolete plugin',
                      'desc'      => 'The "browsercompatibility" plugin is no longer supported (and no longer required with recent browsers), so it will be automatically uninstalled.'),
-                     
-                     
-
-
-
 
 );
 
@@ -433,3 +428,16 @@ if (($showAbort && $serendipity['GET']['action'] == 'ignore') || $serendipity['G
 <?php }
     }
 }
+
+$data['get']['action'] = $serendipity['GET']['action']; // don't trust {$smarty.get.vars} if not proofed, as we often change GET vars via serendipty['GET'] by runtime
+
+if (!is_object($serendipity['smarty'])) {
+    serendipity_smarty_init();
+}
+
+/* see on top */
+#$serendipity['smarty']->registerPlugin('function', 'serendipity_upgraderResultDiagnose', 'serendipity_smarty_backend_upgraderResultDiagnose');
+
+echo serendipity_smarty_show('admin/upgrader.inc.tpl', $data);
+
+/* vim: set sts=4 ts=4 expandtab : */

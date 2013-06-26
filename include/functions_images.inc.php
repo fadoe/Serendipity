@@ -7,11 +7,6 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-if (defined('S9Y_FRAMEWORK_IMAGES')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_IMAGES', true);
-
 /**
  * Check if an uploaded file is "evil"
  *
@@ -104,9 +99,8 @@ function serendipity_fetchImagesFromDatabase($start=0, $limit=0, &$total=null, $
         $cond['parts']['keywords'] = " AND (mk.property IN ('" . serendipity_db_implode("', '", $keywords, 'string') . "'))\n";
         $cond['joinparts']['keywords'] = true;
     }
-
     foreach($filter AS $f => $fval) {
-        if (!isset($orderfields[$f]) || empty($fval)) {
+        if (! (isset($orderfields[$f]) || $f == "fileCategory") || empty($fval)) {
             continue;
         }
 
@@ -139,6 +133,15 @@ function serendipity_fetchImagesFromDatabase($start=0, $limit=0, &$total=null, $
                 $cond['parts']['filter'] .= " AND (bp2.property = '$realf' AND bp2.value = '" . serendipity_db_escape_string(trim($fval)) . "')\n";
             } else {
                 $cond['parts']['filter'] .= " AND ($f = '" . serendipity_db_escape_string(trim($fval)) . "')\n";
+            }
+        } elseif ($f == 'fileCategory') {
+            switch ($fval) {
+                case 'image':
+                    $cond['parts']['filter'] .= " AND (i.mime LIKE 'image/%')\n";
+                    break;
+                case 'video':
+                    $cond['parts']['filter'] .= " AND (i.mime LIKE 'video/%')\n";
+                    break;
             }
         } else {
             if (substr($f, 0, 3) === 'bp.') {
@@ -1094,7 +1097,7 @@ function serendipity_syncThumbs($deleteThumbs = false) {
         $f      = serendipity_parseFileName($files[$x]);
         if (empty($f[1]) || $f[1] == $files[$x]) {
             // No extension means bad file most probably. Skip it.
-            printf(SKIPPING_FILE_EXTENSION . '<br />', $files[$x]);
+            printf('<span class="msg_error"><span class="icon-attention-circled"></span> ' . SKIPPING_FILE_EXTENSION . '</span>', $files[$x]);
             continue;
         }
 
@@ -1108,7 +1111,7 @@ function serendipity_syncThumbs($deleteThumbs = false) {
         }
 
         if (!is_readable($ffull) || filesize($ffull) == 0) {
-            printf(SKIPPING_FILE_UNREADABLE . '<br />', $files[$x]);
+            printf('<span class="msg_error"><span class="icon-attention-circled"></span> ' . SKIPPING_FILE_UNREADABLE . '</span>', $files[$x]);
             continue;
         }
 
@@ -1429,10 +1432,9 @@ function serendipity_calculate_aspect_size($width, $height, $size, $constraint =
  * @param   string  The URL to use for pagination
  * @param   boolean Show the "upload media item" feature?
  * @param   boolean Restrict viewing images to a specific directory
- * @param   boolean  If TRUE, will echo Smarty output.
- * @return  string   Smarty block name
+ * @return  string   Generated HTML
  */
-function serendipity_displayImageList($page = 0, $lineBreak = NULL, $manage = false, $url = NULL, $show_upload = false, $limit_path = NULL, $smarty_display = true) {
+function serendipity_displayImageList($page = 0, $lineBreak = NULL, $manage = false, $url = NULL, $show_upload = false, $limit_path = NULL) {
     global $serendipity;
     static $debug = false;
 
@@ -1652,7 +1654,8 @@ function serendipity_displayImageList($page = 0, $lineBreak = NULL, $manage = fa
         'pages'         => $pages,
         'linkNext'      => $linkNext,
         'linkPrevious'  => $linkPrevious,
-        'extraParems'   => $extraParems
+        'extraParems'   => $extraParems,
+        'totalImages'   => $totalImages
     );
     return serendipity_showMedia(
         $serendipity['imageList'],
@@ -1661,8 +1664,7 @@ function serendipity_displayImageList($page = 0, $lineBreak = NULL, $manage = fa
         $manage,
         $lineBreak,
         true,
-        $smarty_vars,
-        $smarty_display
+        $smarty_vars
     );
 } // End serendipity_displayImageList()
 
@@ -2229,7 +2231,7 @@ function &serendipity_getImageData($sRelativePath) {
  * @param  array    Associative array holding an array('image_id', 'target', 'created_thumbnail') that points to the uploaded media
  * @param  int      How many keyword checkboxes to display next to each other?
  * @param  boolean  Can existing data be modified?
- * @return boolean
+ * @return string   Generated HTML
  *
  */
 function serendipity_showPropertyForm(&$new_media, $keywordsPerBlock = 3, $is_edit = true) {
@@ -2703,6 +2705,8 @@ function serendipity_prepareMedia(&$file, $url = '') {
     $file['full_thumb']     = $serendipity['serendipityPath'] . $serendipity['uploadPath'] . $sThumbSource;
     $file['full_thumbHTTP'] = $serendipity['serendipityHTTPPath'] . $serendipity['uploadHTTPPath'] . $sThumbSource;
 
+    $file['url'] = $url;
+
     if ($file['hotlink']) {
         $file['full_file']  = $file['path'];
         $file['show_thumb'] = $file['path'];
@@ -2764,20 +2768,10 @@ function serendipity_prepareMedia(&$file, $url = '') {
     if ($file['is_image'] && file_exists($file['full_thumb'])) {
         $file['thumbWidth']  = $file['dim'][0];
         $file['thumbHeight'] = $file['dim'][1];
-        $file['preview'] .= '<img src="' . $serendipity['serendipityHTTPPath'] . $serendipity['uploadHTTPPath'] . $sThumbSource . '" border="0" title="' . $file['path'] . $file['name'] . '" alt="'. $file['realname'] . '" />';
-        if ($url) {
-            $file['preview_url'] = $url .'&amp;serendipity[image]='. $file['id'];
-            $file['preview'] = '<a href="'. $file['preview_url'] .'">'. $file['preview'] .'</a>';
-        }
     } elseif ($file['is_image'] && $file['hotlink']) {
         $sizes = serendipity_calculate_aspect_size($file['dimensions_width'], $file['dimensions_height'], $serendipity['thumbSize'], $serendipity['thumbConstraint']);
         $file['thumbWidth']  = $sizes[0];
         $file['thumbHeight'] = $sizes[1];
-        $file['preview'] .= '<img src="' . $file['path'] . '" width="' . $sizes[0] . '" height="' . $sizes[1] . '" border="0" title="' . $file['path'] . '" alt="'. $file['realname'] . '" />';
-        if ($url) {
-            $file['preview_url'] = $url .'&amp;serendipity[image]='. $file['id'];
-            $file['preview'] = '<a href="'. $file['preview_url'] .'">'. $file['preview'] .'</a>';
-        }
     /* If it's not an image, or the thumbnail does not exist */
     } else {
         $mimeicon = serendipity_getTemplateFile('admin/img/mime_' . preg_replace('@[^a-z0-9\-\_]@i', '-', $file['mime']) . '.png');
@@ -2810,11 +2804,10 @@ function serendipity_prepareMedia(&$file, $url = '') {
  * @param  int      how many media items to display per row
  * @param  boolean  Enclose within a table cell?
  * @param  array    Additional Smarty variables
- * @param  boolean  If TRUE, will echo Smarty output.
- * @return string   Smarty block name
+ * @return string   Generated HTML
  *
  */
-function serendipity_showMedia(&$file, &$paths, $url = '', $manage = false, $lineBreak = 3, $enclose = true, $smarty_vars = array(), $smarty_display = true) {
+function serendipity_showMedia(&$file, &$paths, $url = '', $manage = false, $lineBreak = 3, $enclose = true, $smarty_vars = array()) {
     global $serendipity;
 
     $form_hidden = '';
@@ -2853,7 +2846,19 @@ function serendipity_showMedia(&$file, &$paths, $url = '', $manage = false, $lin
         'sort_row_interval' => array(8, 16, 50, 100),
         'nr_files'          => count($file),
         'keywords'          => explode(';', $serendipity['mediaKeywords']),
+        'thumbSize'         => $serendipity['thumbSize'],
+        'sortParams'        => array('perpage', 'order', 'ordermode'),
+        'filterParams'      => array('only_path', 'only_filename')
     );
+
+
+    foreach($media['sortParams'] AS $sortParam) {
+        $serendipity['smarty']->assign(array("get_sortorder_$sortParam" => $serendipity['GET']['sortorder'][$sortParam]));
+    }
+
+    foreach($media['filterParams'] AS $filterParam) {
+        $serendipity['smarty']->assign(array("$filterParam" => $serendipity['GET'][$filterParam]));
+    }
 
     $media = array_merge($media, $smarty_vars);
     $media['files'] =& $file;
@@ -2868,18 +2873,12 @@ function serendipity_showMedia(&$file, &$paths, $url = '', $manage = false, $lin
     if ($enclose) {
         serendipity_smarty_fetch('MEDIA_ITEMS', 'admin/media_items.tpl');
         $block = 'admin/media_pane.tpl';
-        if ($smarty_display) {
-            $serendipity['smarty']->display(serendipity_getTemplateFile('admin/media_pane.tpl', 'serendipityPath'));
-        }
+        return serendipity_smarty_show(serendipity_getTemplateFile('admin/media_pane.tpl', 'serendipityPath'));
     } else {
         serendipity_smarty_fetch('MEDIA_ITEMS', 'admin/media_items.tpl');
         $block = 'admin/media_properties.tpl';
-        if ($smarty_display) {
-            $serendipity['smarty']->display(serendipity_getTemplateFile('admin/media_properties.tpl', 'serendipityPath'));
-        }
+        return serendipity_smarty_show(serendipity_getTemplateFile('admin/media_properties.tpl', 'serendipityPath'));
     }
-
-    return $block;
 }
 
 /**
@@ -3549,3 +3548,4 @@ function serendipity_checkDirUpload($dir) {
 
     return false;
 }
+

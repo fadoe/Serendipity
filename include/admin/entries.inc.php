@@ -422,10 +422,10 @@ switch($serendipity['GET']['adminAction']) {
                     serendipity_updertEntry($entry);
                 } else {
                     if ($serendipity['use_iframe']) {
-                        echo '<div class="serendipityAdminMsgSuccess"><img style="height: 22px; width: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="' . serendipity_getTemplateFile('admin/img/admin_msg_success.png') . '" alt="" />' . IFRAME_SAVE . '</div><br />';
-                        serendipity_iframe_create('save', $entry);
+                        $data['is_iframe'] = true;
+                        $data['iframe'] = serendipity_iframe_create('save', $entry);
                     } else {
-                        serendipity_iframe($entry, 'save');
+                        $data['iframe'] = serendipity_iframe($entry, 'save');
                     }
                 }
             } else {
@@ -479,10 +479,10 @@ switch($serendipity['GET']['adminAction']) {
                 }
 
                 if ($serendipity['use_iframe']) {
-                    echo '<div class="serendipityAdminMsgSuccess"><img style="height: 22px; width: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="' . serendipity_getTemplateFile('admin/img/admin_msg_success.png') . '" alt="" />' . IFRAME_PREVIEW . '</div><br />';
-                    serendipity_iframe_create('preview', $entry);
+                    $data['is_iframepreview'] = true;
+                    $data['iframe'] = serendipity_iframe_create('preview', $entry);
                 } else {
-                    serendipity_iframe($entry, 'preview');
+                    $data['iframe'] = serendipity_iframe($entry, 'preview');
                 }
             }
         }
@@ -496,7 +496,7 @@ switch($serendipity['GET']['adminAction']) {
 
         if (!$preview_only) {
             include_once S9Y_INCLUDE_PATH . 'include/functions_entries_admin.inc.php';
-            serendipity_printEntryForm(
+            $entryForm = serendipity_printEntryForm(
                 '?',
                 array(
                   'serendipity[action]'      => 'admin',
@@ -518,12 +518,12 @@ switch($serendipity['GET']['adminAction']) {
 
         $entry = serendipity_fetchEntry('id', $serendipity['GET']['id'], 1, 1);
         serendipity_deleteEntry((int)$serendipity['GET']['id']);
-        printf(RIP_ENTRY, $entry['id'] . ' - ' . htmlspecialchars($entry['title']));
-        echo '<br />';
-        $cont_draw = true;
+        $data['switched_output'] = true;
+        $data['is_doDelete']     = true;
+        $data['del_entry']       = sprintf(RIP_ENTRY, $entry['id'] . ' - ' . htmlspecialchars($entry['title']));
 
     case 'doMultiDelete':
-        if (!isset($cont_draw)) {
+        if ($serendipity['GET']['adminAction'] != 'doDelete') {
             if (!serendipity_checkFormToken() || !isset($serendipity['GET']['id'])) {
                 break;
             }
@@ -592,8 +592,8 @@ switch($serendipity['GET']['adminAction']) {
 
     default:
         include_once S9Y_INCLUDE_PATH . 'include/functions_entries_admin.inc.php';
-
-        serendipity_printEntryForm(
+        // edit entry mode
+        $entryForm = serendipity_printEntryForm(
             '?',
             array(
             'serendipity[action]'      => 'admin',
@@ -603,5 +603,14 @@ switch($serendipity['GET']['adminAction']) {
             (isset($entry) ? $entry : array())
         );
 }
+
+$data['entryForm'] = $entryForm;
+$data['get'] = $serendipity['GET']; // don't trust {$smarty.get.vars} if not proofed, as we often change GET vars via serendipty['GET'] by runtime
+// make sure we've got these
+if(!isset($data['urltoken']))  $data['urltoken']  = serendipity_setFormToken('url');
+if(!isset($data['formtoken'])) $data['formtoken'] = serendipity_setFormToken();
+
+echo serendipity_smarty_show('admin/entries.inc.tpl', $data);
+
 /* vim: set sts=4 ts=4 expandtab : */
 ?>
