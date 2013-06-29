@@ -624,7 +624,7 @@ function serendipity_checkInstallation() {
     $serendipity['dbType'] = $_POST['dbType'];
     // Probe database
     // (do it after the dir stuff, as we need to be able to create the sqlite database)
-    @include_once($_POST['serendipityPath'] . 'include/db/db.inc.php');
+    @include_once(S9Y_INCLUDE_PATH . 'include/db/' . $serendipity['dbType'] . '.inc.php');
     // For shared installations, probe the file on include path
     include_once(S9Y_INCLUDE_PATH . 'include/db/db.inc.php');
 
