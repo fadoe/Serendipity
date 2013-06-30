@@ -663,7 +663,7 @@ class serendipity_topreferrers_plugin extends serendipity_plugin {
         } else {
             $use_links = serendipity_db_bool($use_links);
         }
-        serendipity_displayTopReferrers($this->get_config('limit', 10), $use_links, $this->get_config('interval', 7));
+        echo serendipity_displayTopReferrers($this->get_config('limit', 10), $use_links, $this->get_config('interval', 7));
     }
 }
 
@@ -729,7 +729,7 @@ class serendipity_topexits_plugin extends serendipity_plugin {
             $use_links = serendipity_db_bool($use_links);
         }
 
-        serendipity_displayTopExits($this->get_config('limit', 10), $use_links, $this->get_config('interval', 7));
+        echo serendipity_displayTopExits($this->get_config('limit', 10), $use_links, $this->get_config('interval', 7));
     }
 }
 
@@ -1716,12 +1716,12 @@ class serendipity_categories_plugin extends serendipity_plugin {
         }
 
         if (!$smarty && $is_form) {
-            $html .= '<div class="category_submit"><br /><input type="submit" name="serendipity[isMultiCat]" value="' . GO . '" /></div>';
+            $html .= '<div class="category_submit"><input type="submit" name="serendipity[isMultiCat]" value="' . GO . '" /></div>';
         }
 
         if (!$smarty) {
             $html .= sprintf(
-                '<div class="category_link_all"><br /><a href="%s" title="%s">%s</a></div>',
+                '<div class="category_link_all"><a href="%s" title="%s">%s</a></div>',
 
                 $serendipity['serendipityHTTPPath'] . $serendipity['indexFile'] . '?frontpage',
                 ALL_CATEGORIES,

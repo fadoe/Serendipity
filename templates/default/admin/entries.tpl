@@ -1,7 +1,10 @@
+<script type="text/javascript" language="JavaScript" src="serendipity_define.js.php"></script>
+<script type="text/javascript" language="JavaScript" src="serendipity_editor.js"></script>
+
 <!-- ADMIN-ENTRY TEMPLATE: entries.tpl START -->
 {*** POSSIBLE ERROR MESSAGES START ***}
 {if $entry_vars.errMsg}
-    <div class="serendipityAdminMsgError"><img style="width: 22px; height: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="{serendipity_getFile file='admin/img/admin_msg_error.png'}" alt="" />{$entry_vars.errMsg}</div>
+    <div class="serendipityAdminMsgError msg_error"><img class="img_error" src="{serendipity_getFile file='admin/img/admin_msg_error.png'}" alt="" />{$entry_vars.errMsg}</div>
 {/if}
 {*** POSSIBLE ERROR MESSAGES END ***}
 {*** MAIN ENTRY FORM START ***}
@@ -74,7 +77,6 @@
 
                 selector_toggle['categoryselector'] = '{$entry_vars.cat_state}';
             </script>
-            <script type="text/javascript" language="JavaScript" src="{serendipity_getFile file='admin/category_selector.js'}"></script>
             <script type="text/javascript" language="JavaScript">
                 addLoadEvent(showItem);
             </script>
@@ -88,10 +90,10 @@
         <td colspan="2"><b>{$CONST.ENTRY_BODY}</b></td>
         <td align="right">
             <div id="tools_entry" style="display: none">
-            {if $entry_vars.wysiwyg_advanced}
-{if $iso2br}
-    <input type="button" class="serendipityPrettyButton input_button" name="insX" value="NoBR" accesskey="x" style="font-style: italic" onclick="wrapSelection(document.forms['serendipityEntry']['serendipity[body]'],'<nl>','</nl>')" />
-{/if}
+
+                {if $iso2br}
+                    <input type="button" class="serendipityPrettyButton input_button" name="insX" value="NoBR" accesskey="x" style="font-style: italic" onclick="wrapSelection(document.forms['serendipityEntry']['serendipity[body]'],'<nl>','</nl>')" />
+                {/if}
                 <input type="button" class="serendipityPrettyButton input_button" name="insI" value="I" accesskey="i" style="font-style: italic" onclick="wrapSelection(document.forms['serendipityEntry']['serendipity[body]'],'<em>','</em>')" />
                 <input type="button" class="serendipityPrettyButton input_button" name="insB" value="B" accesskey="b" style="font-weight: bold" onclick="wrapSelection(document.forms['serendipityEntry']['serendipity[body]'],'<strong>','</strong>')" />
                 <input type="button" class="serendipityPrettyButton input_button" name="insU" value="U" accesskey="u" style="text-decoration: underline;" onclick="wrapSelection(document.forms['serendipityEntry']['serendipity[body]'],'<u>','</u>')" />
@@ -99,19 +101,6 @@
                 <input type="button" class="serendipityPrettyButton input_button" name="insJ" value="img" accesskey="j" onclick="wrapInsImage(document.forms['serendipityEntry']['serendipity[body]'])" />
                 <input type="button" class="serendipityPrettyButton input_button" name="insImage" value="{$CONST.MEDIA}" style="" onclick="window.open('serendipity_admin_image_selector.php?serendipity[textarea]=body', 'ImageSel', 'width=800,height=600,toolbar=no,scrollbars=1,scrollbars,resize=1,resizable=1');" />
                 <input type="button" class="serendipityPrettyButton input_button" name="insURL" value="URL" accesskey="l" onclick="wrapSelectionWithLink(document.forms['serendipityEntry']['serendipity[body]'])" />
-            {else}
-
-                {if $iso2br}
-                <input type="button" class="serendipityPrettyButton input_button" value=" NoBR " onclick="serendipity_insBasic(document.forms['serendipityEntry']['serendipity[body]'], 'x')" />
-                {/if}
-
-                <input type="button" class="serendipityPrettyButton input_button" value=" B " onclick="serendipity_insBasic(document.forms['serendipityEntry']['serendipity[body]'], 'b')" />
-                <input type="button" class="serendipityPrettyButton input_button" value=" U " onclick="serendipity_insBasic(document.forms['serendipityEntry']['serendipity[body]'], 'u')" />
-                <input type="button" class="serendipityPrettyButton input_button" value=" I " onclick="serendipity_insBasic(document.forms['serendipityEntry']['serendipity[body]'], 'i')" />
-                <input type="button" class="serendipityPrettyButton input_button" value="<img>" onclick="serendipity_insImage(document.forms['serendipityEntry']['serendipity[body]'])" />
-                <input type="button" class="serendipityPrettyButton input_button" value="{$CONST.MEDIA}" onclick="window.open('serendipity_admin_image_selector.php?serendipity[textarea]=body', 'ImageSel', 'width=800,height=600,toolbar=no');" />
-                <input type="button" class="serendipityPrettyButton input_button" value="Link" onclick="serendipity_insLink(document.forms['serendipityEntry']['serendipity[body]'])" />
-            {/if}
 
                 {serendipity_hookPlugin hook="backend_entry_toolbar_body" data=$entry_data.entry hookAll="true"}
             </div>
@@ -120,7 +109,6 @@
                 toolbarentry.style.display = '';
             </script>
         </td>
-
         {else}
         <td colspan="2"><b>{$CONST.ENTRY_BODY}</b></td>
         <td>{serendipity_hookPlugin hook="backend_entry_toolbar_body" data=$entry_data.entry hookAll="true"}</td>
@@ -238,6 +226,4 @@
 {/if}
 {*** SPAWN WYSIWYG EDITORS END ***}
 
-<script type="text/javascript" language="JavaScript" src="serendipity_define.js.php"></script>
-<script type="text/javascript" language="JavaScript" src="serendipity_editor.js"></script>
 <!-- ADMIN-ENTRY TEMPLATE: entries.tpl END -->

@@ -6,11 +6,6 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-if (defined('S9Y_FRAMEWORK_SMARTY')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_SMARTY', true);
-
 /**
  * Fetch a list of trackbacks for an entry
  *
@@ -470,7 +465,7 @@ function serendipity_smarty_showPlugin($params, &$smarty) {
         $params['template'] = 'sidebar.tpl';
     }
 
-    $out = serendipity_plugin_api::generate_plugins($params['side'], null, $params['negate'], $params['class'], $params['id'], $params['template']);
+    $out = serendipity_plugin_api::generate_plugins($params['side'], $params['negate'], $params['class'], $params['id'], $params['template']);
 
     if (empty($out) && !empty($params['empty'])) {
         return $params['empty'];
@@ -607,7 +602,7 @@ function serendipity_smarty_printSidebar($params, &$smarty) {
     }
 
     if (isset($params['template'])) {
-        return serendipity_plugin_api::generate_plugins($params['side'], '', false, null, null, $params['template']);
+        return serendipity_plugin_api::generate_plugins($params['side'], false, null, null, $params['template']);
     } else {
         return serendipity_plugin_api::generate_plugins($params['side']);
     }
@@ -867,7 +862,7 @@ function serendipity_smarty_init($vars = array()) {
         if (!defined('IN_serendipity_admin') && file_exists($template_dir . '/template.inc.php')) {
             // If this file exists, a custom template engine will be loaded.
             // Beware: Smarty is used in the Admin backend, despite of this.
-            include $template_dir . '/template.inc.php';
+            include_once $template_dir . '/template.inc.php';
         } else {
             // Set a session variable if Smarty fails:
             $prev_smarty = $_SESSION['no_smarty'];
@@ -881,7 +876,7 @@ function serendipity_smarty_init($vars = array()) {
             @define('SMARTY_DIR', S9Y_PEAR_PATH . 'Smarty/libs/');
             
             if (!class_exists('Smarty')) {
-                include SMARTY_DIR . 'Smarty.class.php';
+                include_once SMARTY_DIR . 'Smarty.class.php';
             }
 
             if (!class_exists('Smarty')) {
@@ -890,7 +885,7 @@ function serendipity_smarty_init($vars = array()) {
 
             // Load serendipity smarty class loading class
             if (!class_exists('Serendipity_Smarty')) {
-                include 'serendipity_smarty_class.inc.php';
+                include_once 'serendipity_smarty_class.inc.php';
             }
             
             if (!class_exists('Serendipity_Smarty')) {
@@ -943,14 +938,6 @@ function serendipity_smarty_init($vars = array()) {
             
         }
 
-        if (!isset($serendipity['smarty_raw_mode'])) {
-            if (file_exists($serendipity['smarty']->getConfigDir(0) . '/layout.php') && $serendipity['template'] != 'default') {
-                $serendipity['smarty_raw_mode'] = true;
-            } else {
-                $serendipity['smarty_raw_mode'] = false;
-            }
-        }
-
         if (!isset($serendipity['smarty_file'])) {
             $serendipity['smarty_file'] = 'index.tpl';
         }
@@ -967,7 +954,29 @@ function serendipity_smarty_init($vars = array()) {
         }
 
         if (!isset($serendipity['smarty_vars']['head_link_stylesheet'])) {
-            $serendipity['smarty_vars']['head_link_stylesheet'] = serendipity_rewriteURL('serendipity.css');
+            if (IN_serendipity_admin === true) {
+                $serendipity['smarty_vars']['head_link_stylesheet'] = serendipity_rewriteURL('serendipity_admin.css');
+            } else {
+                $serendipity['smarty_vars']['head_link_stylesheet'] = serendipity_rewriteURL('serendipity.css');
+            }
+
+            // When templates are switched, append a specific version string to make sure the browser does not cache the CSS
+            if (strstr($serendipity['smarty_vars']['head_link_stylesheet'], '?')) {
+                $serendipity['smarty_vars']['head_link_stylesheet'] .= '&v=' . $serendipity['last_template_change'];
+            } else {
+                $serendipity['smarty_vars']['head_link_stylesheet'] .= '?v=' . $serendipity['last_template_change'];
+            }
+        }
+
+        if (!isset($serendipity['smarty_vars']['head_link_script'])) {
+            $serendipity['smarty_vars']['head_link_script'] = serendipity_rewriteURL('serendipity.js');
+            
+            // When templates are switched, append a specific version string to make sure the browser does not cache the CSS
+            if (strstr($serendipity['smarty_vars']['head_link_stylesheet'], '?')) {
+                $serendipity['smarty_vars']['head_link_script'] .= '&v=' . $serendipity['last_template_change'];
+            } else {
+                $serendipity['smarty_vars']['head_link_script'] .= '?v=' . $serendipity['last_template_change'];
+            }
         }
 
         $serendipity['smarty']->assign(
@@ -977,6 +986,7 @@ function serendipity_smarty_init($vars = array()) {
                 'head_title'                => $serendipity['head_title'],
                 'head_subtitle'             => $serendipity['head_subtitle'],
                 'head_link_stylesheet'      => $serendipity['smarty_vars']['head_link_stylesheet'],
+                'head_link_script'          => $serendipity['smarty_vars']['head_link_script'],
 
                 'is_xhtml'                  => true,
                 'use_popups'                => $serendipity['enablePopup'],
@@ -1013,8 +1023,11 @@ function serendipity_smarty_init($vars = array()) {
 
         // For advanced usage, we allow template authors to create a file 'config.inc.php' where they can
         // setup custom smarty variables, modifiers etc. to use in their templates.
-        @include_once $serendipity['smarty']->getConfigDir(0) . '/config.inc.php';
-
+        $config = $serendipity['smarty']->getConfigDir(0) . '/config.inc.php';
+        if (file_exists($config)) {
+            include_once $config;
+        }
+        
         if (is_array($template_loaded_config)) {
             $template_vars =& $template_loaded_config;
             $serendipity['smarty']->assignByRef('template_option', $template_vars);
@@ -1076,4 +1089,20 @@ function serendipity_smarty_shutdown($serendipity_directory = '') {
         $serendipity['smarty_file'] = '404.tpl';
     }
     $serendipity['smarty']->display(serendipity_getTemplateFile($serendipity['smarty_file'], 'serendipityPath'));
+}
+
+/* Render a smarty-template
+ * $template: path to the template-file
+ * $data: map with the variables to assign
+ * */
+function serendipity_smarty_show($template, $data = null) {
+    global $serendipity;
+    
+    if (!is_object($serendipity['smarty'])) {
+        serendipity_smarty_init();
+    }
+    
+    $serendipity['smarty']->assign($data);
+
+    return $serendipity['smarty']->fetch(serendipity_getTemplateFile($template, 'serendipityPath'));
 }

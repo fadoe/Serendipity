@@ -6,11 +6,6 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
-if (defined('S9Y_FRAMEWORK_COMPAT')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_COMPAT', true);
-
 $serendipity = array();
 @ini_set('magic_quotes_runtime', 'off');
 
@@ -123,7 +118,7 @@ if (!function_exists('errorToExceptionHandler')) {
         if ($serendipity['production'] === false) { 
             echo '<p> == TESTING ERROR MODE == </p>';
             echo '<pre>';
-            // debugbacktrace is nice, but additional it is good to have the verbosity of SPL EXCEPTIONS, except for db connect errors
+            // it is good to have the verbosity of SPL EXCEPTIONS, except for db connect errors
             if (!$serendipity['dbConn']) {
                 echo '<p>' . $errStr . ' in ' . $errFile . ' on line ' . $errLine . '</p>';
             } else {
@@ -132,34 +127,13 @@ if (!function_exists('errorToExceptionHandler')) {
             echo '</pre>'; // if using throw new ... this ending tag will not be send and displayed, but it still looks better and browsers don't really care
             exit; // make sure to exit in case of database connection errors.
         } 
+
         if ($serendipity['production'] === true) { 
-            if( $serendipity['serendipityUserlevel'] >= USERLEVEL_ADMIN ) {
-                // ToDo: enhance for more special serendipity error needs
-                $str  = '<p> == SERENDIPITY ERROR == </p>';
-                $str .= '<p>Please correct:</p>';
-                $str .= '<p>' . $errStr . ' in ' . $errFile . ' on line ' . $errLine . '</p>';
-                #var_dump(headers_list());
-                if (headers_sent()) {
-                    serendipity_die($str); // case HTTP headers: needs to halt with die() here, else it will path through and gets written underneath blog content, which hardly isn't seen by many users
-                } else {
-                    // this also reacts on non eye-displayed errors with following small javascript, while being in tags like <select> to push on top of page, else return non javascript use $str just there
-                    echo '<noscript>' . $str . '</noscript>' . "\n<script>" . '
-function create(htmlStr) {
-    var frag = document.createDocumentFragment(),
-        temp = document.createElement("div");
-    temp.innerHTML = htmlStr;
-    while (temp.firstChild) {
-        frag.appendChild(temp.firstChild);
-    }
-    return frag;
-}
-var fragment = create("Error redirect: '.addslashes($str).'");
-// You can use native DOM methods to insert the fragment:
-document.body.insertBefore(fragment, document.body.childNodes[0]);
-' . "\n</script>\n";
-                    // sadly we can't use HEREDOC notation here as this does not execute the javascript after finished writing
-                }
-            }
+            // ToDo: enhance for more special serendipity error needs
+            $str  = '<p> == SERENDIPITY ERROR == </p>';
+            $str .= '<p>Please correct:</p>';
+            $str .= '<p>' . $errStr . ' in ' . $errFile . ' on line ' . $errLine . '</p>';
+            serendipity_die($str); // needs to halt with die() here, else it will path through and gets written underneath blog content.
         }
     }
 }
@@ -363,7 +337,7 @@ function serendipity_detectLang($use_include = false) {
             $preferred_language = strtolower(preg_replace('@^([^\-_;]*)_?.*$@', '\1', $lang));
             if (in_array($preferred_language, $supported_languages)) {
                 if ($use_include) {
-                    @include(S9Y_INCLUDE_PATH . 'lang/' . $charset . 'serendipity_lang_' . $preferred_language . '.inc.php');
+                    @include_once(S9Y_INCLUDE_PATH . 'lang/' . $charset . 'serendipity_lang_' . $preferred_language . '.inc.php');
                     $serendipity['autolang'] = $preferred_language;
                 }
                 return $preferred_language;

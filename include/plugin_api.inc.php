@@ -6,14 +6,8 @@ if (IN_serendipity !== true) {
     die ('Don\'t hack!');
 }
 
-if (defined('S9Y_FRAMEWORK_PLUGIN_API')) {
-    return;
-}
-@define('S9Y_FRAMEWORK_PLUGIN_API', true);
+include_once S9Y_INCLUDE_PATH . 'include/functions.inc.php';
 
-if (!defined('S9Y_FRAMEWORK_FUNCTIONS')) {
-    include S9Y_INCLUDE_PATH . 'include/functions.inc.php';
-}
 
 
 /* Core API function mappings
@@ -23,9 +17,9 @@ if (!defined('S9Y_FRAMEWORK_FUNCTIONS')) {
  */
 $serendipity['capabilities']['jquery']         = true;
 $serendipity['core_events']['frontend_header']['jquery'] = 'serendipity_plugin_api_frontend_header';
-$serendipity['core_events']['backend_header']['jquery']  = 'serendipity_plugin_api_frontend_header';
+$serendipity['core_events']['backend_header']['jquery']  = 'serendipity_plugin_api_backend_header';
 
-// Add jquery to all frontend and backend templates
+// Add jquery to all frontend templates (in noConflict mode)
 function serendipity_plugin_api_frontend_header($event_name, &$bag, &$eventData, $addData) {
   global $serendipity;
 
@@ -36,10 +30,24 @@ function serendipity_plugin_api_frontend_header($event_name, &$bag, &$eventData,
     $check = serendipity_getTemplateFile('jquery.js');
     if (!$check && $serendipity['capabilities']['jquery']) {
 ?>
-    <script type="text/javascript" src="<?php echo $serendipity['serendipityHTTPPath']; ?>templates/jquery.js"></script>
-    <script type="text/javascript">
-    jQuery.noConflict();
-    </script>
+    <script src="<?php echo $serendipity['serendipityHTTPPath']; ?>templates/jquery.js"></script>
+    <script>jQuery.noConflict();</script>
+<?php
+    }
+}
+
+// Add jquery to all backend templates
+function serendipity_plugin_api_backend_header($event_name, &$bag, &$eventData, $addData) {
+  global $serendipity;
+
+    // Only execute if current template does not have its own jquery.js file
+    // jquery can be disabled if a template's config.inc.php or a plugin sets
+    // $serendipity['capabilities']['jquery'] = false
+
+    $check = serendipity_getTemplateFile('jquery.js');
+    if (!$check && $serendipity['capabilities']['jquery']) {
+?>
+    <script src="<?php echo $serendipity['serendipityHTTPPath']; ?>templates/jquery.js"></script>
 <?php
     }
 }
@@ -76,13 +84,13 @@ class serendipity_plugin_api
     static function register_default_plugins()
     {
         /* Register default sidebar plugins, order matters */
-        serendipity_plugin_api::create_plugin_instance('@serendipity_calendar_plugin');
-        serendipity_plugin_api::create_plugin_instance('@serendipity_quicksearch_plugin');
-        serendipity_plugin_api::create_plugin_instance('@serendipity_archives_plugin');
-        serendipity_plugin_api::create_plugin_instance('@serendipity_categories_plugin');
-        serendipity_plugin_api::create_plugin_instance('@serendipity_syndication_plugin');
-        serendipity_plugin_api::create_plugin_instance('@serendipity_superuser_plugin');
-        serendipity_plugin_api::create_plugin_instance('@serendipity_plug_plugin');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_calendar');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_quicksearch');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_archives');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_categories');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_syndication');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_superuser');
+        serendipity_plugin_api::create_plugin_instance('@serendipity_plugin_plug');
 
         /* Register default event plugins */
         serendipity_plugin_api::create_plugin_instance('serendipity_event_s9ymarkup', null, 'event');
@@ -475,9 +483,7 @@ class serendipity_plugin_api
 
         // First try the local path, and then (if existing) a shared library repository ...
         // Internal plugins ignored.
-        if (!empty($instance_id) && $instance_id[0] == '@') {
-            $file = S9Y_INCLUDE_PATH . 'include/plugin_internal.inc.php';
-        } elseif (file_exists($serendipity['serendipityPath'] . $pluginFile)) {
+        if (file_exists($serendipity['serendipityPath'] . $pluginFile)) {
             $file = $serendipity['serendipityPath'] . $pluginFile;
         } elseif (file_exists(S9Y_INCLUDE_PATH . $pluginFile)) {
             $file = S9Y_INCLUDE_PATH . $pluginFile;
@@ -836,14 +842,9 @@ class serendipity_plugin_api
      * @param   string      Only show a plugin with this instance ID
      * @return  string      Smarty HTML output
      */
-    static function generate_plugins($side, $tag = '', $negate = false, $class = null, $id = null, $tpl = 'sidebar.tpl')
+    static function generate_plugins($side, $negate = false, $class = null, $id = null, $tpl = 'sidebar.tpl')
     {
         global $serendipity;
-
-        /* $tag parameter is deprecated and used in Smarty templates instead. Only use it in function
-         * header for layout.php BC.
-         */
-
         $plugins = serendipity_plugin_api::enum_plugins($side, $negate, $class, $id);
 
         if (!is_array($plugins)) {
@@ -1677,10 +1678,6 @@ class serendipity_event extends serendipity_plugin
         return true;
     }
 
-}
-
-if (!defined('S9Y_FRAMEWORK_PLUGIN_INTERNAL')) {
-    include S9Y_INCLUDE_PATH . 'include/plugin_internal.inc.php';
 }
 
 /* vim: set sts=4 ts=4 expandtab : */
