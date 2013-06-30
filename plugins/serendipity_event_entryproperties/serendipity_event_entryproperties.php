@@ -659,6 +659,10 @@ class serendipity_event_entryproperties extends serendipity_event
                     break;
 
                 case 'backend_cache_purge':
+                    if (!$is_cache) {
+                        return true;
+                    }
+
                     serendipity_db_query("DELETE FROM {$serendipity['dbPrefix']}entryproperties WHERE property LIKE 'ep_cache_%'");
                     break;
 

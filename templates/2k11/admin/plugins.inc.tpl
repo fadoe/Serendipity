@@ -12,12 +12,12 @@
     {elseif $saveconf}
     <span class="msg_success"><span class="icon-ok-circled"></span> {$CONST.DONE}: {$CONST.SETTINGS_SAVED_AT|sprintf:"$timestamp"}</span>
     {/if}
-    <h2>{$name} (<span class="plugin_class">{$class}</span>)</h2>
+    <h2>{$name} ({$class})</h2>
 
     <div class="plugin_info">
-        <p><strong>{$CONST.DESCRIPTION}:</strong> {$desc}</p>
+        <p><b>{$CONST.DESCRIPTION}:</b> {$desc}</p>
     {if !empty($license)}
-        <p><strong>{$CONST.MEDIA_PROPERTY_COPYRIGHT}:</strong> {$license}</p>
+        <p><b>{$CONST.MEDIA_PROPERTY_COPYRIGHT}:</b> {$license}</p>
     {/if}
     {if ! empty($documentation) || $changelog || $documentation_local}
         <ul class="plainList">
@@ -101,9 +101,9 @@
                 {if isset($requirements_failures.{$plug.class_name})}
                     <span class="unmet_requirements msg_error"><span class="icon-attention-circled"></span> {$CONST.UNMET_REQUIREMENTS|sprintf:"{if $requirements_failures.{$plug.class_name}.s9y}s9y $plug.requirements..serendipity,{/if} {if $requirements_failures.{$plug.class_name}.php}PHP $plug.requirements.php,{/if} {if $requirements_failures.{$plug.class_name}.smarty}Smarty $plug.requirements.smarty{/if}"}</span>
                 {elseif $plug['upgradable'] == true}
-                    <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[pluginPath]={$plug.pluginPath}&amp;serendipity[install_plugin]={$plug.plugin_class}{if isset($plug['customURI'])}{$plug.customURI}{/if}" title="{$CONST.UPGRADE}" rel="tooltip"><span class="icon-download"></span> {$CONST.UPGRADE}</a>
+                    <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[pluginPath]={$plug.pluginPath}&amp;serendipity[install_plugin]={$plug.plugin_class}{if isset($plug['customURI'])}{$plug.customURI}{/if}" title="{$CONST.UPGRADE}"><span class="icon-download"></span> {$CONST.UPGRADE}</a>
                 {elseif $plug.installable == true}
-                    <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[pluginPath]={$plug.pluginPath}&amp;serendipity[install_plugin]={$plug.plugin_class}{if isset($plug.customURI)}{$plug.customURI}{/if}" title="{$CONST.INSTALL}" rel="tooltip"><span class="icon-download"></span><span class="visuallyhidden"> {$CONST.INSTALL}</span></a>
+                    <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[pluginPath]={$plug.pluginPath}&amp;serendipity[install_plugin]={$plug.plugin_class}{if isset($plug.customURI)}{$plug.customURI}{/if}" title="{$CONST.INSTALL}"><span class="icon-download"></span><span class="visuallyhidden"> {$CONST.INSTALL}</span></a>
                 {else}
                     <span class="block_level"><span class="icon-ok-circled"></span> {$CONST.ALREADY_INSTALLED}</span>
                 {/if}
@@ -123,7 +123,7 @@
     <section id="pluginlist_sidebar">
         <h3>{$CONST.SIDEBAR_PLUGINS}</h3>
 
-        <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[adminAction]=addnew" title='{$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.SIDEBAR_PLUGIN}"}'><span class="icon-download"></span><span class="visuallyhidden"> {$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.SIDEBAR_PLUGIN}"}</span></a>
+        <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[adminAction]=addnew" title='{$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.SIDEBAR_PLUGIN}"}'>{$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.SIDEBAR_PLUGIN}"}</a>
 
         {$backend_plugins_sidebar_header}
         {$sidebar_plugins}
@@ -132,7 +132,7 @@
     <section id="pluginlist_event">
         <h3>{$CONST.EVENT_PLUGINS}</h3>
 
-        <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[adminAction]=addnew&amp;serendipity[type]=event" title='{$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.EVENT_PLUGIN}"}'><span class="icon-download"></span><span class="visuallyhidden"> {$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.EVENT_PLUGIN}"}</span></a>
+        <a class="button_link" href="?serendipity[adminModule]=plugins&amp;serendipity[adminAction]=addnew&amp;serendipity[type]=event" title='{$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.EVENT_PLUGIN}"}'>{$CONST.CLICK_HERE_TO_INSTALL_PLUGIN|sprintf:"{$CONST.EVENT_PLUGIN}"}</a>
 
         {$backend_plugins_event_header}
         {$event_plugins}

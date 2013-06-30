@@ -130,6 +130,14 @@
 {if $media.nr_files < 1}
     <div align="center">- {$CONST.NO_IMAGES_FOUND} -</div>
 {else}
+{if $smarty.get.serendipity.adminModule == 'media'}
+
+    <form action="?" method="post" name="formMultiDelete" id="formMultiDelete">
+        {$media.token}
+        <input type="hidden" name="serendipity[action]" value="admin" />
+        <input type="hidden" name="serendipity[adminModule]" value="media" />
+        <input type="hidden" name="serendipity[adminAction]" value="multidelete" />
+{/if}
 <table border="0" width="100%">
     <tr>
         <td colspan="{$media.lineBreak}">
@@ -172,5 +180,18 @@
             </table>
         </td>
     </tr>
+{if $smarty.get.serendipity.adminModule == 'media'}
+    <tr>
+        <td align="right">
+            <input type="button" name="toggle" value="{$CONST.INVERT_SELECTIONS}" onclick="invertSelection()" class="serendipityPrettyButton input_button" />
+            <input type="submit" name="toggle" value="{$CONST.DELETE_SELECTED_ENTRIES}" class="serendipityPrettyButton input_button" />
+        </td>
+    </tr>
+{/if}
 </table>
+
+{if $smarty.get.serendipity.adminModule == 'media'}
+</form>
+{/if}
+
 {/if}

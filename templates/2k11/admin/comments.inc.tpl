@@ -1,8 +1,6 @@
 {if !empty($errormsg)}
-    {* TODO: Not sure anything emitted here actually IS an error. *}
     <span class="msg_error"><span class="icon-attention-circled"></span> {$errormsg}</span>
 {/if}
-<div class="has_toolbar">
     <h2>{$CONST.COMMENTS}</h2>
 
     <form action="" method="GET">
@@ -11,7 +9,7 @@
         <input name="serendipity[page]" type="hidden" value="{$page}">
 
         <ul class="filters_toolbar plainList">
-            <li><a class="button_link" href="#filter_comments" title="Show filters" rel="tooltip"><span class="icon-filter"></span><span class="visuallyhidden"> Show filters</span></a></li> {* i18n *}
+            <li><a class="button_link" href="#filter_comments" title="Show filters"><span class="icon-filter"></span><span class="visuallyhidden"> Show filters</span></a></li> {* i18n *}
             <li><div class="backend_comments">{serendipity_hookPlugin hookAll=true hook="backend_comments_top" addData=$sql}</div></li> {* Does this ever emit anything but the 'Configure Anti-Spam' stuff? *}
         </ul>
 
@@ -84,7 +82,6 @@
             </div>
         </fieldset>
     </form>
-</div>
 {if !is_array($sql)}
     <span class="msg_notice"><span class="icon-info-circled"></span> {$CONST.NO_COMMENTS}</span>
 
@@ -105,18 +102,19 @@
 
                     <h4 id="c{$comment.id}">{($comment.type == 'NORMAL') ? $CONST.COMMENT : (($comment.type == 'TRACKBACK') ? $CONST.TRACKBACK : $CONST.PINGBACK )} #{$comment.id} – {$CONST.IN_REPLY_TO} <a href="{$comment.entry_url}">{$comment.title|escape}</a> {$CONST.ON} {$comment.timestamp|@formatTime:'%b %e %Y, %H:%M'}</h4>
 
-                    <dl class="comment_data clearfix">
-                        <dt>{$CONST.AUTHOR}:</dt>
-                        <dd>{$comment.author|escape|truncate:40:"&hellip;"} {$comment.action_author}</dd>
-                        <dt>{$CONST.EMAIL}:</dt>
-                        <dd>{if empty($comment.email)}N/A{else}<a href="mailto:{$comment.email|escape}" title="{$comment.email|escape}" rel="tooltip">{$comment.email|escape|truncate:40:"&hellip;"}</a>{if $comment.subscribed == 'true'} <span class="serendipity_subscription_on">({$CONST.ACTIVE_COMMENT_SUBSCRIPTION})</span>{/if}{/if} {$comment.action_email}</dd>
-                        <dt>IP:</dt>
-                        <dd>{if empty($comment.ip)}N/A{else}{$comment.ip|escape}{/if} {$comment.action_ip}</dd>
-                        <dt>URL:</dt>
-                        <dd>{if empty($comment.url)}N/A{else}<a href="{$comment.url|escape}" title="{$comment.url|escape}" rel="tooltip">{$comment.url|escape|truncate:40:"&hellip;"}</a> {/if} {$comment.action_url}</dd>
-                        <dt>{$CONST.REFERER}:</dt>
-                        <dd>{if empty($comment.referer)}N/A{else}<a href="{$comment.referer|escape}" title="{$comment.referer|escape}" rel="tooltip">{$comment.referer|escape|truncate:40:"&hellip;"}</a>{/if} {$comment.action_referer}</dd>
-                    </dl>
+                    <details>
+                        <summary><b>{$CONST.AUTHOR}:</b> {$comment.author|escape|truncate:40:"&hellip;"} {$comment.action_author}</summary>
+                        <dl class="comment_data clearfix">
+                            <dt>{$CONST.EMAIL}:</dt>
+                            <dd>{if empty($comment.email)}N/A{else}<a href="mailto:{$comment.email|escape}" title="{$comment.email|escape}">{$comment.email|escape|truncate:40:"&hellip;"}</a>{if $comment.subscribed == 'true'} <i>({$CONST.ACTIVE_COMMENT_SUBSCRIPTION})</i>{/if}{/if} {$comment.action_email}</dd>
+                            <dt>IP:</dt>
+                            <dd>{if empty($comment.ip)}N/A{else}{$comment.ip|escape}{/if} {$comment.action_ip}</dd>
+                            <dt>URL:</dt>
+                            <dd>{if empty($comment.url)}N/A{else}<a href="{$comment.url|escape}" title="{$comment.url|escape}">{$comment.url|escape|truncate:40:"&hellip;"}</a> {/if} {$comment.action_url}</dd>
+                            <dt>{$CONST.REFERER}:</dt>
+                            <dd>{if empty($comment.referer)}N/A{else}<a href="{$comment.referer|escape}" title="{$comment.referer|escape}">{$comment.referer|escape|truncate:40:"&hellip;"}</a>{/if} {$comment.action_referer}</dd>
+                        </dl>
+                    </details>
 
                     <div id="c{$comment.id}_summary" class="comment_summary">{$comment.fullBody|truncate:120:"&hellip;"}</div>
 
@@ -124,18 +122,18 @@
 
                     <ul class="plainList clearfix actions">
                     {if ($comment.status == 'pending') || ($comment.status == 'confirm')}
-                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=approve&amp;serendipity[id]={$comment.id}&amp;{$urltoken}" title="{$CONST.APPROVE}" rel="tooltip"><span class="icon-lock-open"></span><span class="visuallyhidden">{$CONST.APPROVE}</span></a></li>
+                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=approve&amp;serendipity[id]={$comment.id}&amp;{$urltoken}" title="{$CONST.APPROVE}"><span class="icon-lock-open"></span><span class="visuallyhidden">{$CONST.APPROVE}</span></a></li>
                     {/if}
                     {if ($comment.status == 'approved')}
-                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=pending&amp;serendipity[id]={$comment.id}&amp;{$urltoken}" title="{$CONST.SET_TO_MODERATED}" rel="tooltip"><span class="icon-lock"></span><span class="visuallyhidden"> {$CONST.SET_TO_MODERATED}</span></a></li>
+                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=pending&amp;serendipity[id]={$comment.id}&amp;{$urltoken}" title="{$CONST.SET_TO_MODERATED}"><span class="icon-lock"></span><span class="visuallyhidden"> {$CONST.SET_TO_MODERATED}</span></a></li>
                     {/if}
                     {if $comment.excerpt}
-                        <li><a class="button_link toggle_comment_full" href="#c{$comment.id}_full" title="{$CONST.TOGGLE_ALL}" rel="tooltip"><span class="icon-plus"></span><span class="visuallyhidden"> {$CONST.TOGGLE_ALL}</span></a></li>
+                        <li><a class="button_link toggle_comment_full" href="#c{$comment.id}_full" title="{$CONST.TOGGLE_ALL}"><span class="icon-plus"></span><span class="visuallyhidden"> {$CONST.TOGGLE_ALL}</span></a></li>
                     {/if}
-                        <li><a class="button_link" href="{$comment.entrylink}" title="{$CONST.VIEW}" rel="tooltip"><span class="icon-eye"></span><span class="visuallyhidden"> {$CONST.VIEW}</span></a></li>
-                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=edit&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;{$urltoken}" title="{$CONST.EDIT}" rel="tooltip"><span class="icon-edit"></span><span class="visuallyhidden"> {$CONST.EDIT}</span></a></li>
-                        <li><a class="button_link comments_delete" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=delete&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;{$urltoken}" data-delmsg='{($CONST.COMMENT_DELETE_CONFIRM|sprintf:$comment.id:$comment.author)|escape}' title="{$CONST.DELETE}" rel="tooltip"><span class="icon-trash"></span><span class="visuallyhidden"> {$CONST.DELETE}</span></a></li>
-                        <li><a class="button_link comments_reply" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=reply&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;serendipity[noBanner]=true&amp;serendipity[noSidebar]=true&amp;{$urltoken}" title="{$CONST.REPLY}" rel="tooltip"><span class="icon-chat"></span><span class="visuallyhidden"> {$CONST.REPLY}</span></a></li>
+                        <li><a class="button_link" href="{$comment.entrylink}" title="{$CONST.VIEW}"><span class="icon-eye"></span><span class="visuallyhidden"> {$CONST.VIEW}</span></a></li>
+                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=edit&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;{$urltoken}" title="{$CONST.EDIT}"><span class="icon-edit"></span><span class="visuallyhidden"> {$CONST.EDIT}</span></a></li>
+                        <li><a class="button_link comments_delete" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=delete&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;{$urltoken}" data-delmsg='{($CONST.COMMENT_DELETE_CONFIRM|sprintf:$comment.id:$comment.author)|escape}' title="{$CONST.DELETE}"><span class="icon-trash"></span><span class="visuallyhidden"> {$CONST.DELETE}</span></a></li>
+                        <li><a class="button_link comments_reply" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=reply&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;serendipity[noBanner]=true&amp;serendipity[noSidebar]=true&amp;{$urltoken}" title="{$CONST.REPLY}"><span class="icon-chat"></span><span class="visuallyhidden"> {$CONST.REPLY}</span></a></li>
                     </ul>
                     {$comment.action_more}
                 </li>
@@ -147,8 +145,8 @@
                 <h3>{$CONST.PAGE_BROWSE_COMMENTS|sprintf:$page:$pages:$totalComments}</h3>
                 
                 <ul class="clearfix">
-                    <li class="prev">{if ($page != 1 && $page <= $pages)}<a class="button_link" href="{$linkPrevious}" title="{$CONST.PREVIOUS}" rel="tooltip"><span class="icon-left-open"></span><span class="visuallyhidden"> {$CONST.PREVIOUS}</span></a>{else}<span class="visuallyhidden">{$CONST.NO_ENTRIES_TO_PRINT}</span>{/if}</li>
-                    <li class="next">{if $page != $pages}<a class="button_link" href="{$linkNext}" title="{$CONST.NEXT}" rel="tooltip"><span class="visuallyhidden">{$CONST.NEXT} </span><span class="icon-right-open"></span></a>{else}<span class="visuallyhidden">{$CONST.NO_ENTRIES_TO_PRINT}</span>{/if}</li>
+                    <li class="prev">{if ($page != 1 && $page <= $pages)}<a class="button_link" href="{$linkPrevious}" title="{$CONST.PREVIOUS}"><span class="icon-left-open"></span><span class="visuallyhidden"> {$CONST.PREVIOUS}</span></a>{else}<span class="visuallyhidden">{$CONST.NO_ENTRIES_TO_PRINT}</span>{/if}</li>
+                    <li class="next">{if $page != $pages}<a class="button_link" href="{$linkNext}" title="{$CONST.NEXT}"><span class="visuallyhidden">{$CONST.NEXT} </span><span class="icon-right-open"></span></a>{else}<span class="visuallyhidden">{$CONST.NO_ENTRIES_TO_PRINT}</span>{/if}</li>
                 </ul>
             </nav>
         {/if}

@@ -6,6 +6,11 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
+if (defined('S9Y_FRAMEWORK_INSTALLER')) {
+    return;
+}
+@define('S9Y_FRAMEWORK_INSTALLER', true);
+
 /**
  * Convert a PHP Ini setting to a boolean flag
  *
@@ -196,6 +201,7 @@ function serendipity_query_default($optname, $default, $usertemplate = false, $t
                 $test_path1 = $_SERVER['DOCUMENT_ROOT'] . rtrim(dirname($_SERVER['PHP_SELF']), '/') . '/';
             }
             $test_path2 = serendipity_getRealDir(__FILE__);
+            
             if (!empty($_SERVER['ORIG_PATH_TRANSLATED']) && file_exists(dirname($_SERVER['ORIG_PATH_TRANSLATED']) . '/serendipity_admin.php')) {
                 return realpath(rtrim(dirname($_SERVER['ORIG_PATH_TRANSLATED']), '/')) . '/';
             }
@@ -283,7 +289,7 @@ function serendipity_parseTemplate($filename, $areas = null, $onlyFlags=null) {
 
     $config = @include($filename);
     if (! is_array($config)) {
-    	printf(INCLUDE_ERROR,$filename);
+        printf(INCLUDE_ERROR,$filename);
     }
 
     foreach ( $config as $n => $category ) {
@@ -395,6 +401,14 @@ function serendipity_guessInput($type, $name, $value='', $default='') {
             }
             break;
 
+        case 'fullprotected':
+            echo '<input autocomplete="off" class="input_textbox" type="password" size="30" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
+            break;
+
+        case 'protected':
+            echo '<input class="input_textbox" type="password" size="30" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
+            break;
+
         case 'multilist':
             $default = (array)$default;
             $value = (array)$value;
@@ -407,6 +421,7 @@ function serendipity_guessInput($type, $name, $value='', $default='') {
                 }
                 $curOptions[$name][$k]['selected'] = $selected;
             }
+            echo '</select>';
             break;
 
         case 'list':
@@ -420,8 +435,20 @@ function serendipity_guessInput($type, $name, $value='', $default='') {
                 $curOptions[$name][$k]['selected'] = $selected;
             }
             break;
-    }
 
+        case 'file':
+            echo '<input class="input_file" type="file" size="30" name="' . $name . '" />';
+            break;
+
+        case 'textarea':
+            echo '<textarea rows="5" cols="40" name="' . $name . '">' . htmlspecialchars($value) . '</textarea>';
+            break;
+
+        default:
+            echo '<input class="input_textbox" type="text" size="30" name="' . $name . '" value="' . htmlspecialchars($value) . '" />';
+            break;
+
+    }
     $data['type'] = $type;
     $data['name'] = $name;
     $data['value'] = $value;
@@ -429,6 +456,37 @@ function serendipity_guessInput($type, $name, $value='', $default='') {
     $data['selected'] = $curOptions;
 
     return serendipity_smarty_show('admin/guess_input.tpl', $data);
+}
+
+function serendipity_printConfigJS($folded = true) {
+?>
+<script type="text/javascript" language="JavaScript">
+function showConfig(id) {
+    if (document.getElementById) {
+        el = document.getElementById(id);
+        if (el.style.display == 'none') {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+}
+
+var state='<?php echo ($folded === true ? '' : 'none'); ?>';
+function showConfigAll(count) {
+    if (document.getElementById) {
+        for (i = 1; i <= count; i++) {
+            document.getElementById('el' + i).style.display = state;
+        }
+        if (state == 'block') {
+            state = 'none';
+        } else {
+            state = 'block';
+        }
+    }
+}
+</script>
+<?php
 }
 
 /**
@@ -492,8 +550,21 @@ function serendipity_printConfigTemplate($config, $from = false, $noForm = false
             $item['guessedInput'] = serendipity_guessInput($item['type'], $item['var'], $value, $item['default']);
         }
     }
-    $data['config'] = $config;
-    echo serendipity_smarty_show('admin/config_template.tpl', $data);
+
+    if ($folded && $allowToggle) {
+        echo '<script type="text/javascript" language="JavaScript">';
+        for ($i = 1; $i <= $el_count; $i++) {
+            echo 'document.getElementById("el' . $i . '").style.display = "none";' . "\n";
+        }
+        echo '</script>';
+    }
+
+    if (!$noForm) {
+?>
+    <input type="submit" value="<?php echo CHECK_N_SAVE; ?>">
+</form>
+<?php
+    }
 }
 
 /**
@@ -624,9 +695,9 @@ function serendipity_checkInstallation() {
     $serendipity['dbType'] = $_POST['dbType'];
     // Probe database
     // (do it after the dir stuff, as we need to be able to create the sqlite database)
-    @include_once(S9Y_INCLUDE_PATH . 'include/db/' . $serendipity['dbType'] . '.inc.php');
+    include_once(S9Y_INCLUDE_PATH . "include/db/{$serendipity['dbType']}.inc.php");
     // For shared installations, probe the file on include path
-    include_once(S9Y_INCLUDE_PATH . 'include/db/db.inc.php');
+    //include_once(S9Y_INCLUDE_PATH . 'include/db/db.inc.php');
 
     if (S9Y_DB_INCLUDED) {
         serendipity_db_probe($_POST, $errs);

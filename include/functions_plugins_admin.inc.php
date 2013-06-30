@@ -1,4 +1,4 @@
-<?php # $Id: functions_entries.inc.php 435 2005-08-25 12:36:39Z garvinhicking $
+<?php # $Id:$
 # Copyright (c) 2003-2005, Jannis Hermanns (on behalf the Serendipity Developer Team)
 # All rights reserved.  See LICENSE file for licensing details
 
@@ -90,15 +90,20 @@ function show_plugins($event_only = false, $sidebars = null)
         }
     }
 
-
+    $eyecandy = !isset($serendipity['eyecandy']) || serendipity_db_bool($serendipity['eyecandy']);
     $data['event_only'] = $event_only;
-    if (!$event_only) {
+    $data['eyecandy'] = $eyecandy;
+    if (!$eyecandy) {
+        $data['eyecandy'] = false;
+    } elseif (!$event_only) {
         $data['event_only'] = false;
-        $data['is_first'] = true;
+        $data['is_first'] = $is_first = true;
     }
 
     $data['serendipity_setFormToken'] = serendipity_setFormToken();
-    $data['serendipity_setFormTokenUrl'] = serendipity_setFormToken('url');
+
+    // what is this for???
+    $errors     = array();
 
     /* Block display the plugins per placement location. */
     if ($event_only) {
@@ -107,26 +112,18 @@ function show_plugins($event_only = false, $sidebars = null)
         $plugin_placements = $sidebars;
     }
     $data['plugin_placements'] = $plugin_placements;
+    $ownership = array();
 
-    static $users = array();
-    if (empty($users)) {
-        $users = serendipity_fetchUsers('', 'hidden');
-    }
-    $data['users'] = $users;
-
-    $i = 0;
+    $total = 0;
     foreach ($plugin_placements as $plugin_placement) {
         if (!$event_only && $plugin_placement == 'NONE') {
             $is_invisible     = true;
         } else {
             $is_invisible     = false;
         }
-        $ptitle = $opts[$plugin_placement];
-        $pid    = $plugin_placement;
+        $data['placement'][$plugin_placement]['ptitle'] = $ptitle = $opts[$plugin_placement];
+        $data['placement'][$plugin_placement]['pid'] = $pid    = $plugin_placement;
 
-        echo '<td class="pluginmanager_side pluginmanager_' . ($event_only ? 'event' : 'sidebar') . '">'."\n";
-        echo '<div class="heading">' . $ptitle . '</div>'."\n";
-        echo '<ol id="' . $pid . '_col" class="pluginmanager_container">'."\n";
         if ($is_invisible) {
             $plugins = $invisible_plugins;
         } else {
@@ -134,13 +131,12 @@ function show_plugins($event_only = false, $sidebars = null)
         }
 
         if (!is_array($plugins)) {
-            echo "</ol>\n</td>\n";
             continue;
         }
 
         $sort_idx = 0;
         foreach ($plugins as $plugin_data) {
-            $i++;
+            $total++;
             $plugin  =& serendipity_plugin_api::load_plugin($plugin_data['name'], $plugin_data['authorid']);
             $key     = urlencode($plugin_data['name']);
             $css_key = 's9ycid' . str_replace('%', '-', $key);
@@ -159,7 +155,7 @@ function show_plugins($event_only = false, $sidebars = null)
 
                 $name  = htmlspecialchars($bag->get('name'));
                 $desc  = htmlspecialchars($bag->get('description'));
-                $desc .= '<br />' . VERSION  . ': <em>' . $bag->get('version') . '</em>';
+                $desc .= '<span class="block_level">' . VERSION  . ': <em>' . $bag->get('version') . '</em></span>';
 
                 $title = serendipity_plugin_api::get_plugin_title($plugin, '[' . $name . ']');
 
@@ -170,49 +166,135 @@ function show_plugins($event_only = false, $sidebars = null)
                 }
             }
 
-            if ($opts === null) {
-                $opts = array(
-                    'left'  => LEFT,
-                    'right' => RIGHT,
-                    'hide'  => HIDDEN
-                );
-            }
-
-            static $event_opts = array(
-                            'event'     => PLUGIN_ACTIVE,
-                            'eventh' => PLUGIN_INACTIVE,
-            );
-
-            if ($is_event) {
-                $gopts =& $event_opts;
+            if ($event_only) {
+                $place = placement_box('serendipity[placement][' . $plugin_data['name'] . ']', $plugin_data['placement'], $is_plugin_editable, true, $opts);
+                $event_only_uri = '&amp;serendipity[event_plugin]=true';
             } else {
-                $gopts =& $opts;
+                $place = placement_box('serendipity[placement][' . $plugin_data['name'] . ']', $plugin_data['placement'], $is_plugin_editable, false, $opts);
+                $event_only_uri = '';
             }
 
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['sort_idx'] = $sort_idx;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['css_key'] = $css_key;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['is_plugin_editable'] = $is_plugin_editable;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['is_plugin_owner'] = $is_plugin_owner;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['name'] = $plugin_data['name'];
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['authorid'] = $plugin_data['authorid'];
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['can_configure'] = $can_configure;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['key'] = $key;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['title'] = $title;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['desc'] = $desc;
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['placement'] = $plugin_data['placement'];
-            $data['placement'][$plugin_placement]['plugin_data'][$i]['gopts'] = $gopts;
+            /* Only display UP/DOWN links if there's somewhere for the plugin to go */
+            if ($sort_idx == 0) {
+                $moveup   = '&nbsp;';
+            } else {
+                $moveup   = '<a href="?' . serendipity_setFormToken('url') . '&amp;serendipity[adminModule]=plugins&amp;submit=move+up&amp;serendipity[plugin_to_move]=' . $key . $event_only_uri . '" style="border: 0"><img src="' . serendipity_getTemplateFile('admin/img/uparrow.png') .'" height="16" width="16" border="0" alt="' . UP . '" /></a>';
+            }
+
+            if ($sort_idx == (count($plugins)-1)) {
+                $movedown = '&nbsp;';
+            } else {
+                $movedown = ($moveup != '' ? '&nbsp;' : '') . '<a href="?' . serendipity_setFormToken('url') . '&amp;serendipity[adminModule]=plugins&amp;submit=move+down&amp;serendipity[plugin_to_move]=' . $key . $event_only_uri . '" style="border: 0"><img src="' . serendipity_getTemplateFile('admin/img/downarrow.png') . '" height="16" width="16" alt="'. DOWN .'" border="0" /></a>';
+            }
+
+            ob_start();
+                ownership($plugin_data['authorid'], $plugin_data['name'], $is_plugin_owner);
+                $ownership = ob_get_contents();
+            ob_end_clean();
+
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['sort_idx'] = $sort_idx;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['css_key'] = $css_key;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['is_plugin_editable'] = $is_plugin_editable;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['name'] = $plugin_data['name'];
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['can_configure'] = $can_configure;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['key'] = $key;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['title'] = $title;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['desc'] = $desc;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['ownership'] = $ownership;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['place'] = $place;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['moveup'] = $moveup;
+            $data['placement'][$plugin_placement]['plugin_data'][$total]['movedown'] = $movedown;
             $sort_idx++;
         }
 
-        echo '</ol></td>';
     }
 
-    $data['total'] = $i;
-    echo serendipity_smarty_show('admin/show_plugins.fnc.tpl', $data);
+    $data['total'] = $total;
+
+    $serendipity['smarty']->assign($data);
+    $tpldir = ( !defined('SWITCH_TEMPLATE_VERSION') )  ? 'tplold' : 'tpl';
+    $tfile = dirname(__FILE__) . "/admin/$tpldir/show_plugins.fnc.tpl";
+    $serendipity['smarty']->display('file:'. $tfile);
+
 }
 
 /**
- * Show the plugin configuration
+ * Returns HTML code for the ownership column of the plugin listing
+ *
+ * Used by the function show_plugins()
+ *
+ * @access  private
+ * @see     show_plugins()
+ * @param   int     ID of the current user
+ * @param   string  plugin name
+ * @param   boolean Toggle whether the plugin belongs to the current author
+ * @return  null
+ */
+function ownership($authorid, $name, $is_plugin_owner = false) {
+    global $serendipity;
+
+    static $users = array();
+    if (empty($users)) {
+        $users = serendipity_fetchUsers('', 'hidden');
+    }
+    $data['authorid'] = $authorid;
+    $data['users'] = $users;
+    $data['is_plugin_owner'] = $is_plugin_owner;
+    $data['name'] = $name;
+    $data['show_ownership'] = true;
+
+    $serendipity['smarty']->assign($data);
+    $tpldir = ( !defined('SWITCH_TEMPLATE_VERSION') )  ? 'tplold' : 'tpl';
+    $tfile = dirname(__FILE__) . "/admin/$tpldir/show_ownership.fnc.tpl";
+    $serendipity['smarty']->display('file:'. $tfile);
+
+}
+
+/**
+ * Show a placement box on where to move a sidebar plugin to
+ *
+ * @access private
+ * @see    show_plugins()
+ * @param  string   plugin name
+ * @param  string   current position of the plugin
+ * @param  boolean  Toggle whether a plugin is editable (depends on authorid and permissions)
+ * @param  boolean  Toggle whether a plugin is an event plugin
+ * @return string   HTML code for placement select box
+ */
+function placement_box($name, $val, $is_plugin_editable = false, $is_event = false, $opts = null)
+{
+    if ($opts === null) {
+        $opts = array(
+            'left'  => LEFT,
+            'right' => RIGHT,
+            'hide'  => HIDDEN
+        );
+    }
+
+    static $event_opts = array(
+                    'event'     => PLUGIN_ACTIVE,
+                    'eventh' => PLUGIN_INACTIVE,
+    );
+
+    if ($is_event) {
+        $gopts =& $event_opts;
+    } else {
+        $gopts =& $opts;
+    }
+
+    $x = "\n<select name=\"$name\">\n";
+    foreach ($gopts as $k => $v) {
+        if (!$is_plugin_editable && $k == 'hide') {
+            continue;
+        }
+
+        $x .= "    <option value=\"$k\"" . ($k == $val ? ' selected="selected"' : '') . ">$v</option>\n";
+    }
+    return $x . "</select>\n";
+}
+
+/**
+ * Show a placement box on where to move a sidebar plugin to
  *
  * @access public
  * @param  object   A plugin object
@@ -226,7 +308,7 @@ function show_plugins($event_only = false, $sidebars = null)
  * @param  boolean  Spawn a plugins' configuration WYSIWYG items?
  * @param  string   The array index name of POSTed values ($serendipity['POST'][xxx])
  * @param  array    An array that groups certain config keys
- * @return string   The configuration HTML
+ * @return boolean
  */
 function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_names, $showTable = true, $showSubmit = true, $showExample = true, $spawnNuggets = true, $postKey = 'plugin', $config_groups = NULL) {
     global $serendipity;
@@ -234,44 +316,43 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
     if (empty($config_names)) {
         return false;
     }
-    
-    $tfile = "/admin/plugin_config_item.tpl";
-    
+
+    if (!is_object($serendipity['smarty'])) {
+        serendipity_smarty_init();
+    }
+    $tpldir = ( !defined('SWITCH_TEMPLATE_VERSION') )  ? 'tplold' : 'tpl';
+    $tfile = dirname(__FILE__) . "/admin/$tpldir/out_stack_loop.tpl";
 
     $data = array();
 
     if ($showSubmit && $postKey != 'plugin') { 
-?>
-    <div style="margin: 0px auto 0px 0px; text-align: right">
-        <input type="submit" name="SAVECONF" value="<?php echo SAVE; ?>" class="serendipityPrettyButton input_button" />
-    </div>
-<?php }
+        $data['showSubmit_head'] = true;
+    }
 
-    if ($showTable) {
-?>
-    <table id="serendipity_plugin_config" border="0" cellspacing="0" cellpadding="3" width="100%">
-<?php
+    if ($showTable) { 
+        $data['showTable'] = true;
     }
 
     $elcount = 0;
     $htmlnugget = array();
     
-
     $out_stack = array();
+    $data['config_names'] = $config_names;
 
     foreach ($config_names as $config_item) {
         $elcount++;
         $cbag = new serendipity_property_bag;
         $plugin->introspect_config_item($config_item, $cbag);
 
-        $cname      = htmlspecialchars($cbag->get('name'));
-        $cdesc      = htmlspecialchars($cbag->get('description'));
+        $data['cname'] = $cname      = htmlspecialchars($cbag->get('name'));
+        $data['cdesc'] = $cdesc      = htmlspecialchars($cbag->get('description'));
         $value      = $plugin->get_config($config_item, 'unset');
         $lang_direction = htmlspecialchars($cbag->get('lang_direction'));
 
         if (empty($lang_direction)) {
             $lang_direction = LANG_DIRECTION;
         }
+        $data['lang_direction']  = $lang_direction;
 
         /* Apparently no value was set for this config item */
         if ($value === 'unset') {
@@ -309,17 +390,22 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
         $data['postKey']     = $postKey;
         $data['config_item'] = $config_item;
 
+        ob_start();
+
         switch ($ctype) {
             case 'seperator': 
                 $data['ctype'] = 'seperator';
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                 break;
 
-            case 'multiselect':
-                $is_multi_select = true;
+            case 'multiselect': 
+                $data['ctype'] = 'multiselect';
+                $data['is_multi_select'] = $is_multi_select = true;
 
-            case 'select':
+            case 'select': 
+                $data['ctype'] = 'select';
                 if (is_array($hvalue)) {
                     $selected_options = $hvalue;
                 } elseif ($is_multi_select) {
@@ -333,23 +419,27 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                 $data['select_size']      = $select_size  = $cbag->get('select_size');
                 $data['select']           = $select = $cbag->get('select_values');
 
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                 break;
 
-            case 'tristate':
+            case 'tristate': 
+                $data['ctype'] = 'tristate';
                 $per_row = 3;
                 $radio['value'][] = 'default';
                 $radio['desc'][]  = USE_DEFAULT;
 
-            case 'boolean':
+            case 'boolean': 
+                $data['ctype'] = 'boolean';
                 $radio['value'][] = 'true';
                 $radio['desc'][]  = YES;
 
                 $radio['value'][] = 'false';
                 $radio['desc'][]  = NO;
 
-           case 'radio':
+            case 'radio': 
+                $data['ctype'] = 'radio';
                 if (!count($radio) > 0) {
                     $radio = $cbag->get('radio');
                 }
@@ -360,19 +450,8 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                         $per_row = 2;
                     }
                 }
-?>
-        <tr>
-            <td style="border-bottom: 1px solid #000000; vertical-align: top"><strong><?php echo $cname; ?></strong>
-<?php
-                if ($cdesc != '') {
-?>
-                <br /><span  style="color: #5E7A94; font-size: 8pt;">&nbsp;<?php echo $cdesc; ?></span>
-<?php
-                }
-?>
-            </td>
-            <td style="border-bottom: 1px solid #000000; vertical-align: middle;" width="250">
-<?php
+                $data['per_row'] = $per_row;
+                $data['radio_button'] = array();
                 $counter = 0;
                 foreach($radio['value'] AS $radio_index => $radio_value) {
                     $id = htmlspecialchars($config_item . $radio_value);
@@ -393,37 +472,13 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                     $data['radio_button'][$radio_index]['index'] = htmlspecialchars($radio['desc'][$radio_index]);
                 }
 
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
-                    if ($counter == 1) {
-?>
-                <div>
-<?php
-                    }
-?>
-                    <input class="direction_<?php echo $lang_direction; ?> input_radio" type="radio" id="serendipity_plugin_<?php echo $id; ?>" name="serendipity[<?php echo $postKey; ?>][<?php echo $config_item; ?>]" value="<?php echo $radio_value; ?>" <?php echo $checked ?> title="<?php echo htmlspecialchars($radio['desc'][$radio_index]); ?>" />
-                        <label for="serendipity_plugin_<?php echo $id; ?>"><?php echo htmlspecialchars($radio['desc'][$radio_index]); ?></label>
-<?php
-                    if ($counter == $per_row) {
-                        $counter = 0;
-?>
-                </div>
-<?php
-                    }
-                }
-                // add a closing div tag to the last element here, if uneven elements !! 2013-01-15
-                if ($counter == 1) {
-?>
-                </div>
-<?php
-                }
-?>
-            </td>
-        </tr>
-<?php
                 break;
 
-            case 'string':
+            case 'string': 
+                $data['ctype'] = 'string';
                 if (empty($input_type)) {
                     $input_type = $cbag->get('input_type');
                     if (empty($input_type)) {
@@ -431,69 +486,64 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                     }
                 }
                 $data['input_type'] = $input_type;
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                 break;
 
-            case 'html':
-            case 'text':
+            case 'html': $data['ctype'] = 'html';
+            case 'text': $data['ctype'] = 'text';
                 if (empty($text_rows)) {
                     $text_rows = $cbag->get('rows');
                     if (empty($text_rows)) {
                         $text_rows = 20;
                     }
                 }
-?>
-        <tr>
-            <td colspan="2"><strong><?php echo $cname; ?></strong>
-                &nbsp;<span style="color: #5E7A94; font-size: 8pt;">&nbsp;<?php echo $cdesc; ?></span>
-            </td>
-        </tr>
-
-        <tr>
-            <td colspan="2">
-                <div>
-                    <textarea class="direction_<?php echo $lang_direction; ?>" style="width: 100%" id="nuggets<?php echo $elcount; ?>" name="serendipity[<?php echo $postKey; ?>][<?php echo $config_item; ?>]" rows="<?php echo $text_rows; ?>" cols="80"><?php echo $hvalue; ?></textarea>
-                </div>
-            </td>
-        </tr>
-<?php
+                $data['text_rows'] = $text_rows;
                 if ($cbag->get('type') == 'html') {
                     $htmlnugget[] = $elcount;
                     if (!function_exists('serendipity_emit_htmlarea_code')) {
-                        @include_once dirname(__FILE__) . '/functions_entries_admin.inc.php';
+                        @include dirname(__FILE__) . '/functions_entries_admin.inc.php';
                     }
                     serendipity_emit_htmlarea_code('nuggets', 'nuggets', true);
                 }
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                break;
 
             case 'content': 
                 $data['ctype'] = 'content';
                 $data['cbag_default'] = $cbag->get('default');
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                 break;
 
             case 'custom': 
                 $data['ctype'] = 'custom';
                 $data['cbag_custom'] = $cbag->get('custom');
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                 break;
 
             case 'hidden': 
                 $data['ctype'] = 'hidden';
                 $data['cbag_value'] = $cbag->get('value');
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
-            case 'hidden':
-                ?><tr><td colspan="2"><input class="direction_<?php echo $lang_direction; ?>" type="hidden" name="serendipity[<?php echo $postKey; ?>][<?php echo $config_item; ?>]" value="<?php echo $cbag->get('value'); ?>" /></td></tr><?php
                 break;
 
             case 'media': 
                 $data['ctype'] = 'media';
+                // Output the JavaScript, if we haven't already
+                $data['mediajs_output'] = $mediajs_output = $serendipity['mediajs_output'];
+                if (!$mediajs_output)
+                {
+                    $serendipity['mediajs_output'] = true;
+                }
                 // Print the HTML to display the popup media selector
                 $preview_width = $cbag->get('preview_width');
                 if (!$preview_width || $preview_width == "") {
@@ -505,13 +555,14 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                 }
                 $data['preview_width']  = $preview_width;
                 $data['preview_height'] = $preview_height;
-                $data['value'] = $value;
 
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
                 break;
 
-            case 'sequence':
+            case 'sequence': 
+                $data['ctype'] = 'sequence';
                 // For the drag-n-drop to work, the list must be included in
                 // a container (probably an <ol>) that JavaScript can access
                 // (easiest by ID), with <li> children that have unique IDs,
@@ -519,12 +570,11 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                 // I can't get it to work unless there's a class of
                 // pluginmanager_container on the ol, either.
                 // The drag-n-drop returns the list of IDs in order.
-                $sequencejs_output = $serendipity['sequencejs_output'];
+                $data['sequencejs_output'] = $sequencejs_output = $serendipity['sequencejs_output'];
                 if (!$sequencejs_output) {
-                    echo '<script src="' . serendipity_getTemplateFile('dragdrop.js') . '" type="text/javascript"></script>';
                     $serendipity['sequencejs_output'] = true;
                 }
-                
+
                 // I want this generic sequence widget to hide the ID, but
                 // display a name or description with an optional picture.
                 // (This would allow users to identify choices by thumbnail.)
@@ -535,9 +585,10 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                 if (!$value) {
                     $value = $eventData['default'];
                 }
-                $cname = $cbag->get('name');
-                $cdesc = $cbag->get('description');
-                $checkable = $cbag->get('checkable');
+                $data['value'] = $value;
+                $data['cname'] = $cname = $cbag->get('name');
+                $data['cdesc'] = $cdesc = $cbag->get('description');
+                $data['checkable'] = $checkable = $cbag->get('checkable');
 
                 /** Unordered array of values */
                 $items = $cbag->get('values');
@@ -545,10 +596,8 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                 /** Array specifying order to use values in $items */
                 $order = null;
                 if ($value) {
-                    $store_order = $order = explode(',', $value);
+                    $data['store_order'] = $store_order = $order = explode(',', $value);
                 }
-                $uparrow_img = serendipity_getTemplateFile('admin/img/uparrow.png');
-                $downarrow_img = serendipity_getTemplateFile('admin/img/downarrow.png');
 
                 // $items is the list of things to sequence.  It's not in
                 // order, and reordering PHP arrays is problematic.  So
@@ -597,31 +646,9 @@ function serendipity_plugin_config(&$plugin, &$bag, &$name, &$desc, &$config_nam
                 }
 
                 // Start the row, add one cell for the name and description
-                print <<<EOS
-<tr>
-<td style="border-bottom: 1px solid #000000; vertical-align: top">
-  <strong>$cname</strong>
-  <br /><span style="color: #5E7A94; font-size: 8pt;">$cdesc</span>
-</td>
-
-EOS;
-                // Now add one cell for the list
-                print <<<EOS
-<td style="border-bottom: 1px solid #000000; vertical-align: middle">
-
-EOS;
-                // Print the list
-                print <<<EOS
-  <input type="hidden" name="serendipity[$postKey][$config_item]" id="${config_item}_value" value="$value" />
-  <noscript>
-    <!-- Replace standard submit button when using up/down submits -->
-    <input type="hidden" name="SAVECONF" value="Save" />
-  </noscript>
-  <ol id="$config_item" class="sequence_container pluginmanager_container">
-
-EOS;
+                $data['items'] = $items;
                 $sort_idx = 0;
-                $last = count($order) - 1;
+                $data['last'] = $last = count($order) - 1;
                 foreach ($order as $id) {
                     // Create the variables required to print this item
                     if ($sort_idx > 0) {
@@ -629,97 +656,41 @@ EOS;
                         $temp = $swapping[(int)$sort_idx];
                         $swapping[(int)$sort_idx] = $swapping[(int)($sort_idx - 1)];
                         $swapping[(int)($sort_idx - 1)] = $temp;
-                        $oneup = implode(',' , $swapping);
+                        $data['order_id'][$sort_idx]['oneup'] = $oneup = implode(',' , $swapping);
                     }
                     if ($sort_idx < $last) {
                         $swapping = $order;
                         $temp = $swapping[(int)$sort_idx];
                         $swapping[(int)$sort_idx] = $swapping[(int)($sort_idx + 1)];
                         $swapping[(int)($sort_idx + 1)] = $temp;
-                        $onedown = implode(',' , $swapping);
+                        $data['order_id'][$sort_idx]['onedown'] = $onedown = implode(',' , $swapping);
                     }
 
-
+                    $data['order_id'][$sort_idx]['id'] = $id;
+                    $data['order_id'][$sort_idx]['sort_idx'] = $sort_idx;
                     // Print the HTML
                     //
                     // Set the item and its ID
-                    print '    <li id="'.$id.'" class="sequence_item pluginmanager_item_even">' . "\n";
                     // Make a handle with ID 'g$id'
-                    print '      <div id="g'.$id.'" class="pluginmanager_grablet sequence_grablet"><a href="#"></a></div>' . "\n";
-                    
-                    if ($checkable) {
-                        print '         <input type="checkbox" onclick="sort_' . $config_item . '_Sequence();" name="serendipity[' . $postKey . ']' . '[activate][' . $config_item . '][' . $id . ']" ' . (in_array($id, $store_order) ? ' checked="checked" ' : '') . ' value="true" id="activate_' . $id . '" />' . "\n";
-                    }
-
                     // Add the item contents
-                    print '      <span>'.$items[$id]['display'].'</span>' . "\n";
-                    if (isset($items[$id]['img'])) {
-                        print '      <img src="'.$items[$id]['img'].'" />' . "\n";
-                    }
                     // Luddite submit buttons (please, think of the scriptless!)
-                    print "<noscript><div>\n";
-                    if ($sort_idx == 0) {
-                        // Skip the move-up submit button
-                        print "&nbsp;\n";
-                    } else {
-                        print <<<EOS
-  <button type="submit" name="serendipity[$postKey][override][$config_item]" value="$oneup">
-    <img src="$uparrow_img" alt="Move Up">
-  </button>
-
-EOS;
-                    }
-                    if ($sort_idx == $last) {
-                        // Skip the move-down submit button
-                        print "&nbsp;\n";
-                    } else {
-                        print <<<EOS
-  <button type="submit" name="serendipity[$postKey][override][$config_item]" value="$onedown">
-    <img src="$downarrow_img" alt="Move Down">
-  </button>
-
-EOS;
-                    }
-                    print "</div></noscript>\n";
-                    // Close the item
-                    print '    </li>'."\n";
                     // Next, please
                     $sort_idx++;
-                }
+                } // foreach end
+
                 if (!is_array($items) or empty($order)) {
                     // Print the empty message
-                    print(NONE);
+                    $data['no_sequence'] = sprint(NONE);
                 }
-                 // added missing closing ol tag - 2013-01-15
-                 print <<<EOS
-  </ol>
-EOS;
                 // Print the Javascript to drag-n-drop the list
                 // Finish the row
-                $out_stack[$config_item] = serendipity_smarty_show($tfile, $data);
+                $serendipity['smarty']->assign($data);
+                $serendipity['smarty']->display('file:'. $tfile);
 
-    function init_${config_item}_Sequence()
-    {
-        var lst = document.getElementById("${config_item}");
-        DragDrop.makeListContainer(lst, '${config_item}_group');
-        lst.onDragOut = function() {
-            sort_${config_item}_Sequence();
-        };
-    }
-    addLoadEvent(init_${config_item}_Sequence);
-</script>
-
-EOS;
-                // Finish the row
-                // added missing closing tr tag - 2013-01-15
-                print <<<EOS
-  </td>
-</tr>
-EOS;
                 break;
 
-
-            default:
+            default: 
+                $data['ctype'] = 'default';
                 // Unknown configuration key. Let the plugin handle it.
                 $addData = func_get_args();
                 $eventData = array(
@@ -730,71 +701,34 @@ EOS;
                     'bag'         => $bag,
                     'postKey'     => $postKey
                 );
-                ob_start();
                 serendipity_plugin_api::hook_event('backend_pluginconfig_' . $ctype, $eventData, $addData);
-                $out_stack[$config_item] = ob_get_contents();
-                ob_end_clean();
+
                 break;
         }
 
-        
+        $out_stack[$config_item] = ob_get_contents();
+        ob_end_clean();
     }
-    
+    $data['config_groups'] = $config_groups;
+    $data['OUT_STACK']     = $out_stack;
+
     if (is_array($config_groups)) {
-        $hid = 0;
-        $folded = true;
-?>
-        <tr>
-            <td colspan="2">
-                <div align="right">
-                    <a style="border:0; text-decoration: none" href="#" onClick="showConfigAll(<?php echo sizeof($config_groups); ?>)" title="<?php echo TOGGLE_ALL; ?>"><img src="<?php echo serendipity_getTemplateFile('img/'. ($folded === true ? 'plus' : 'minus') .'.png') ?>" id="optionall" alt="+/-" border="0" />&nbsp;<?php echo TOGGLE_ALL; ?></a></a><br />
-                </div>
-            </td>
-        </tr>
-<?php
         foreach($config_groups AS $config_header => $config_groupkeys) {
-            $hid++;
-            echo '<tr>';
-            echo '<td colspan="2">';
-
-            echo '<h2>';
-            echo '<a style="border:0; text-decoration: none;" href="#" onClick="showConfig(\'el' . $hid . '\'); return false" title="' . TOGGLE_OPTION . '"><img src="' . serendipity_getTemplateFile('img/'. ($folded === true ? 'plus' : 'minus') .'.png') . '" id="optionel' . $hid . '" alt="+/-" border="0" />&nbsp;';
-            echo $config_header;
-            echo '</a>';
-            echo '</h2>';
-            echo '</td>';
-            echo '</tr>';
-
-            echo '<tr>';
-            echo '<td colspan="2">';
-            echo '<table class="plugin_optiongroup" id="el' . $hid . '" border="0" cellspacing="0" cellpadding="3" width="100%">';
-
             foreach($config_groupkeys AS $config_groupkey) {
-                echo $out_stack[$config_groupkey];
-                echo "\n";
                 unset($out_stack[$config_groupkey]);
             }
-            echo '</table>';
-
-            echo '<script type="text/javascript" language="JavaScript">';
-            echo 'document.getElementById("el' . $hid . '").style.display = "none";' . "\n";
-            echo '</script>';
-
-            echo '</td>';
-            echo '</tr>';
         }
-
-        echo '<tr><td colspan="2" style="height: 100px" id="configuration_footer">&nbsp;</td></tr>';
     }
-    
-    echo implode("\n", $out_stack);
 
-    if ($showTable) {
-?>
-    </table>
-<br />
-<?php
-    }
+    $data['OUT_STACK_REST'] = $out_stack;
+
+    // is left here without any use for archiv issues only - we now use external js file outsourced to templates/default/admin/admin_scripts.js 
+    // see passed vars in serendipity_plugin_config.fnc.tpl - can get erased, as not being used any more if keeping Smartification.
+    ob_start();
+    serendipity_printConfigJS();
+    $config_js = ob_get_contents();
+    $data['serendipity_printConfigJS'] = $config_js;
+    ob_end_clean();
 
     // this is new - allowing easier access to script handling like toogle 
     $data['allow_admin_scripts'] = true;
@@ -803,17 +737,26 @@ EOS;
         $data['showSubmit_foot'] = true;
     }
 
-    if ($showExample && method_exists($plugin, 'example') ) {
-?>
-    <div>
-        <?php echo $plugin->example() ?>
-    </div>
-<?php
+    if ($showExample && method_exists($plugin, 'example') ) { 
+        $data['showExample'] = true;
+        ob_start();
+        echo $plugin->example();
+        $data['plugin_example'] = ob_get_contents();
+        ob_end_clean();
     }
 
-    if ($spawnNuggets && isset($serendipity['wysiwyg']) && $serendipity['wysiwyg'] && count($htmlnugget) > 0) {
+    if ($spawnNuggets && isset($serendipity['wysiwyg']) && $serendipity['wysiwyg'] && count($htmlnugget) > 0) { 
+        $data['spawnNuggets'] = true;
         $ev = array('nuggets' => $htmlnugget, 'skip_nuggets' => false);
         serendipity_plugin_api::hook_event('backend_wysiwyg_nuggets', $ev);
+        $data['ev'] = $ev;
+    }
 
-    return serendipity_smarty_show('admin/plugin_config.tpl', $data);
+    $serendipity['smarty']->assign($data);
+    $tpldir = ( !defined('SWITCH_TEMPLATE_VERSION') )  ? 'tplold' : 'tpl';
+    $tfile = dirname(__FILE__) . "/admin/$tpldir/serendipity_plugin_config.fnc.tpl";
+    $content = $serendipity['smarty']->fetch('file:'. $tfile);
+    echo $content;
+
+    return true;
 }

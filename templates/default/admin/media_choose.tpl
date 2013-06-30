@@ -8,43 +8,41 @@
 
         {if $media.is_imgedit}
         <style type="text/css">
-        #outer {ldelim}
+        #outer { 
             left: {$imgedit.zoombox_padding}px;
-        {rdelim}
+        } 
 
-        #overlay {ldelim}
+        #overlay { 
             clip: rect({$imgedit.overlay_clip_top} {$imgedit.overlay_clip_right} {$imgedit.overlay_clip_bottom} {$imgedit.overlay_clip_left});
-        {rdelim}
+        } 
 
-        #harea {ldelim}
+        #harea { 
             left: {$imgedit.zoombox_x}px;
             top: {$imgedit.zoombox_y}px;
             visibility: {$imgedit.harea_visibility};
-        {rdelim}
+        } 
 
-        #varea {ldelim}
+        #varea { 
             left: {$imgedit.zoombox_x}px;
             top: {$imgedit.zoombox_y}px;
             visibility: {$imgedit.varea_visibility};
-        {rdelim}
+        } 
 
-        #zoom {ldelim}
+        #zoom { 
             width: {$imgedit.zoombox_width}px;
-        {rdelim}
+        } 
 
-        #scaletext {ldelim}
+        #scaletext { 
             visibility: {$imgedit.scale_visibility};
-        {rdelim}
+        } 
 
-        #outer {ldelim}
-            width:                       {$imgedit.img_width}px;
-            height:                      {$imgedit.img_height}px;
-            border:                      1px solid red;
-            position:                    relative;
-            display:                     block;
-        {rdelim}
-
-
+        #outer { 
+            width: {$imgedit.img_width}px;
+            height: {$imgedit.img_height}px;
+            border: 1px solid red;
+            position: relative;
+            display: block;
+        } 
         </style>
         <script type="text/javascript" src="{serendipity_getFile file='dragdrop.js'}" ></script>
         <script type="text/javascript" src="{serendipity_getFile file='imgedit.js'}" ></script>
@@ -53,57 +51,11 @@
         <script type="text/javascript" src="{serendipity_getFile file='YahooUI/treeview/YAHOO.js'}"></script>
         <script type="text/javascript" src="{serendipity_getFile file='YahooUI/treeview/treeview.js'}"></script>
 
-        <script type="text/javascript">
-            function addLoadEvent(func) {ldelim}
-                var oldonload = window.onload;
-                if (typeof window.onload != 'function') {ldelim}
-                    window.onload = func;
-                {rdelim} else {ldelim}
-                    window.onload = function() {ldelim}
-                        oldonload();
-                        func();
-                    {rdelim}
-                {rdelim}
-            {rdelim}
+        <script src="{serendipity_getFile file='admin/header_spawn.js'}"></script>
+        <script type="text/javascript" language="JavaScript" src="{$serendipityHTTPPath}serendipity_define.js.php"></script>
+        <script type="text/javascript" language="Javascript" src="{$serendipityHTTPPath}serendipity_editor.js"></script>
 
-            function SetCookie(name, value) {ldelim}
-                var today  = new Date();
-                var expire = new Date();
-                expire.setTime(today.getTime() + (60*60*24*30*1000));
-                document.cookie = 'serendipity[' + name + ']='+escape(value) + ';expires=' + expire.toGMTString();
-            {rdelim}
-
-            function rememberOptions() {ldelim}
-                el = document.getElementById('imageForm');
-                for (i = 0; i < el.elements.length; i++) {ldelim}
-                    elname = new String(el.elements[i].name);
-                    elname = elname.replace(/\[/g, '_');
-                    elname = elname.replace(/\]/g, '');
-
-                    if (el.elements[i].type == 'radio') {ldelim}
-                        if (el.elements[i].checked) {ldelim}
-                            SetCookie(elname, el.elements[i].value);
-                        {rdelim}
-                    {rdelim} else if (typeof(el.elements[i].options) == 'object') {ldelim}
-                        SetCookie(elname, el.elements[i].options[el.elements[i].selectedIndex].value);
-                    {rdelim}
-                {rdelim}
-            {rdelim}
-
-        {if $media.only_path}
-            if (parent.frames && parent.frames['tree']) {ldelim}
-                parent.frames['tree'].document.getElementById('newdirlink').href = parent.frames['tree'].basenewdirurl + "{$media.only_path|@escape}"
-            {rdelim}
-        {/if}
-
-        {if $media.case == 'default'}
-            function rename(id, fname) {ldelim}
-                if (newname = prompt('{$CONST.ENTER_NEW_NAME}' + fname, fname)) {ldelim}
-                    newloc = '?{$media.token_url}&serendipity[adminModule]=images&serendipity[adminAction]=rename&serendipity[fid]='+ escape(id) + '&serendipity[newname]='+ escape(newname);
-                    location.href=newloc;
-                {rdelim}
-            {rdelim}
-        {/if}
+        {serendipity_hookPlugin hook="backend_header" hookAll="true"}
 
 
         <script type="text/javascript">
@@ -118,7 +70,6 @@
             } 
         {/if}
     </script>
-    </head>
 
     </head>
 {if $media.frameset}
@@ -136,10 +87,10 @@
     <!-- EXTERNAL MEDIA START -->
     {if $media.is_created OR $media.is_deleted}
     <script type="text/javascript">
-    if (parent.frames['tree']) {ldelim}
+    if (parent.frames['tree']) { 
         parent.frames['tree'].location.href  = parent.frames['tree'].location.href;
         parent.frames['media'].location.href = '{$serendipityHTTPPath}serendipity_admin_image_selector.php?serendipity[step]=default&serendipity[only_path]={$media.new_dir}';
-    {rdelim}
+    } 
     </script>
     {/if}
     {$media.external}
@@ -168,8 +119,6 @@
 
     <!-- MEDIA SELECTION START -->
     {$media.external}
-    <script type="text/javascript" language="JavaScript" src="{$serendipityHTTPPath}serendipity_define.js.php"></script>
-    <script type="text/javascript" language="Javascript" src="{$serendipityHTTPPath}serendipity_editor.js"></script>
     <div>
     {if $media.file.is_image}
         {serendipity_hookPlugin hook="frontend_image_selector" eventData=$media.file hookAll=true}
@@ -265,7 +214,7 @@
 
                     {serendipity_hookPlugin hookAll=true hook='frontend_image_selector_more' eventData=$media.file}
                     <input class="serendipityPrettyButton input_button" type="button" value="{$CONST.BACK}" onclick="history.go(-1);" />
-                    <input class="serendipityPrettyButton input_button" type="button" value="{$CONST.DONE}" onclick="rememberOptions(); {$media.file.origfinishJSFunction}" />
+                    <input class="serendipityPrettyButton input_button" type="button" value="{$CONST.DONE}" onclick="rememberMediaOptions(); {$media.file.origfinishJSFunction}" />
                     {serendipity_hookPlugin hookAll=true hook='frontend_image_selector_submit' eventData=$media.file}
                 {/if}
             </div>
@@ -282,11 +231,11 @@
         <script type="text/javascript">
             block = '<a href="{$media.file.full_file}" title="{$media.file.realname|@escape}" target="_blank">{$media.file.realname|@escape}</a>';
             {serendipity_hookPlugin hookAll=true hook='frontend_image_add_unknown' eventData=$media}
-            if (parent.self.opener.editorref) {ldelim}
+            if (parent.self.opener.editorref) { 
                 parent.self.opener.editorref.surroundHTML(block, '');
-            {rdelim} else {ldelim}
+            } else { 
                 parent.self.opener.serendipity_imageSelector_addToBody(block, '{$media.textarea}');
-            {rdelim}
+            } 
             parent.self.close();
         </script>
         {/if}

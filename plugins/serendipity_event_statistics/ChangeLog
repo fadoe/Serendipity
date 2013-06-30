@@ -1,3 +1,11 @@
+20070723 Version 1.60:
+----------------------
+(By kalkin)
+
+- rewrote the botfilter. Now it's smarter.
+- the graphs can be maximal 200px large
+- the bar colors are now relative.
+
 1.52:
 -----
 - fixed some missing ending strong tags
@@ -28,6 +36,7 @@
 
 - added lots of bots
 - now the plugin just count each ip as an visitor at this day, not evry refresh
+
 
 Version 1.40:
 -------------

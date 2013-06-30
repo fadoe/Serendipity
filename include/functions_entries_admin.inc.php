@@ -86,6 +86,11 @@ function serendipity_printEntryForm($targetURL, $hiddens = array(), $entry = arr
         }
     }
 
+    if (count($selected) > 1 ||
+          (isset($serendipity['POST']['categories']) && is_array($serendipity['POST']['categories']) && sizeof($serendipity['POST']['categories']) > 1)) {
+        $categoryselector_expanded = true;
+    }
+
     if (is_array($cats = serendipity_fetchCategories())) {
         $cats = serendipity_walkRecursive($cats, 'categoryid', 'parentid', VIEWMODE_THREADED);
         foreach ($cats as $cat) {
@@ -109,7 +114,7 @@ function serendipity_printEntryForm($targetURL, $hiddens = array(), $entry = arr
     }
 
     if (!empty($serendipity['GET']['url'])) {
-        $entry['body'] .= "\n" . '<br /><a href="' . htmlspecialchars(utf8_decode(urldecode($serendipity['GET']['url']))) . '">' . $entry['title'] . '</a>';
+        $entry['body'] .= "\n" . '<a class="block_level" href="' . htmlspecialchars(utf8_decode(urldecode($serendipity['GET']['url']))) . '">' . $entry['title'] . '</a>';
     }
 
     $template_vars['formToken'] = serendipity_setFormToken();
@@ -170,36 +175,6 @@ function serendipity_emit_htmlarea_code($item, $jsname, $spawnMulti = false) {
             return;
         }
 
-        if (file_exists($serendipity['serendipityPath'] . 'htmlarea/XinhaCore.js')) {
-            $xinha = true;
-        } else {
-            $xinha = false;
-        }
-
-        $xinha_custom = serendipity_getTemplateFile('my_custom.js', 'serendipityHTTPPath');
-        if (empty($xinha_custom)) {
-            $xinha_custom = 'htmlarea/my_custom.js';
-        }
-
-        $csscode = str_replace(
-                 array(
-                   "\n",
-                   "'",
-                   "\r",
-                   "{LANG_DIRECTION}"
-                 ),
-
-                 array(
-                   '\n',
-                   "\'",
-                   "",
-                   (defined('LANG_DIRECTION') ? LANG_DIRECTION : 'ltr')
-                 ),
-
-                 file_get_contents(serendipity_getTemplateFile('style_fallback.css', 'serendipityPath')) . 
-                 file_get_contents(serendipity_getTemplateFile('htmlarea.css', 'serendipityPath'))
-        );
-
         if (is_array($eventData['buttons'])) {
             foreach($eventData['buttons'] as $button) {
                 // Sort buttons into toolbar lists for later additions
@@ -219,10 +194,7 @@ function serendipity_emit_htmlarea_code($item, $jsname, $spawnMulti = false) {
         }
         
         $data = array();
-        $data['xinha'] = $xinha;
-        $data['xinha_custom'] = $xinha_custom;
         $data['init'] = $init;
-        $data['csscode'] = $csscode;
         $data['spawnMulti'] = $spawnMulti;
         $data['jsname'] = $jsname;
         $data['eventData'] = $eventData;

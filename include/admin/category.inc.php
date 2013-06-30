@@ -67,6 +67,7 @@ if (isset($_POST['SAVE']) && serendipity_checkFormToken()) {
 
 /* Delete a category */
 if ($serendipity['GET']['adminAction'] == 'doDelete' && serendipity_checkFormToken()) {
+    $data['doDelete'] = true;
     if ($serendipity['GET']['cid'] != 0) {
         $remaining_cat = (int)$serendipity['POST']['cat']['remaining_catid'];
         $category_ranges = serendipity_fetchCategoryRange((int)$serendipity['GET']['cid']);
@@ -111,53 +112,53 @@ if ($serendipity['GET']['adminAction'] == 'doDelete' && serendipity_checkFormTok
     }
 }
 
-    if ( $serendipity['GET']['adminAction'] == 'delete' ) {
+if ( $serendipity['GET']['adminAction'] == 'delete' ) {
     $data['delete'] = true;
-        $this_cat = serendipity_fetchCategoryInfo($serendipity['GET']['cid']);
-        if (   (serendipity_checkPermission('adminCategoriesDelete') && serendipity_checkPermission('adminCategoriesMaintainOthers'))
-            || (serendipity_checkPermission('adminCategoriesDelete') && ($serendipity['authorid'] == $this_cat['authorid'] || $this_cat['authorid'] == '0'))
-            || (serendipity_checkPermission('adminCategoriesDelete') && serendipity_ACLCheck($serendipity['authorid'], $serendipity['GET']['cid'], 'category', 'write'))) {
+    $this_cat = serendipity_fetchCategoryInfo($serendipity['GET']['cid']);
+    if (   (serendipity_checkPermission('adminCategoriesDelete') && serendipity_checkPermission('adminCategoriesMaintainOthers'))
+        || (serendipity_checkPermission('adminCategoriesDelete') && ($serendipity['authorid'] == $this_cat['authorid'] || $this_cat['authorid'] == '0'))
+        || (serendipity_checkPermission('adminCategoriesDelete') && serendipity_ACLCheck($serendipity['authorid'], $serendipity['GET']['cid'], 'category', 'write'))) {
         $data['deletePermission'] = true;
         $data['cid'] = (int)$serendipity['GET']['cid'];
         $data['formToken'] = serendipity_setFormToken();
         $data['categoryName'] = $this_cat['category_name'];
-    $cats = serendipity_fetchCategories('all');
+        $cats = serendipity_fetchCategories('all');
         $data['cats'] = array();
-    /* TODO, show dropdown as nested categories */
-    foreach ($cats as $cat_data) {
-        if ($cat_data['categoryid'] != $serendipity['GET']['cid'] && (serendipity_checkPermission('adminCategoriesMaintainOthers') || $cat_data['authorid'] == '0' || $cat_data['authorid'] == $serendipity['authorid'])) {
+        /* TODO, show dropdown as nested categories */
+        foreach ($cats as $cat_data) {
+            if ($cat_data['categoryid'] != $serendipity['GET']['cid'] && (serendipity_checkPermission('adminCategoriesMaintainOthers') || $cat_data['authorid'] == '0' || $cat_data['authorid'] == $serendipity['authorid'])) {
                 $data['cats'][] = $cat_data;
                
+            }
         }
     }
-        }
-    }
+}
 
 
 
 if ( $serendipity['GET']['adminAction'] == 'edit' || $serendipity['GET']['adminAction'] == 'new' ) {
-        if ( $serendipity['GET']['adminAction'] == 'edit' ) {
+    if ( $serendipity['GET']['adminAction'] == 'edit' ) {
         $data['edit'] = true;
-            $cid = (int)$serendipity['GET']['cid'];
-            $this_cat = serendipity_fetchCategoryInfo($cid);
+        $cid = (int)$serendipity['GET']['cid'];
+        $this_cat = serendipity_fetchCategoryInfo($cid);
         $data['category_name'] = $this_cat['category_name'];
-            $save = SAVE;
-            $read_groups  = serendipity_ACLGet($cid, 'category', 'read');
-            $write_groups = serendipity_ACLGet($cid, 'category', 'write');
-        } else {
+        $save = SAVE;
+        $read_groups  = serendipity_ACLGet($cid, 'category', 'read');
+        $write_groups = serendipity_ACLGet($cid, 'category', 'write');
+    } else {
         $data['new'] = true;
-            $cid = false;
-            $this_cat = array();
+        $cid = false;
+        $this_cat = array();
         echo '<h2>'. CREATE_NEW_CAT .'</h2>';
-            $save = CREATE;
-            $read_groups  = array(0 => 0);
-            $write_groups = array(0 => 0);
-        }
+        $save = CREATE;
+        $read_groups  = array(0 => 0);
+        $write_groups = array(0 => 0);
+    }
     $data['cid'] = $cid;
     $data['this_cat'] = $this_cat;
     $data['save'] = $save;
-
-        $groups = serendipity_getAllGroups();
+    
+    $groups = serendipity_getAllGroups();
     $data['groups'] = $groups;
     $data['read_groups'] = $read_groups;
     $data['write_groups'] = $write_groups;
@@ -166,18 +167,18 @@ if ( $serendipity['GET']['adminAction'] == 'edit' || $serendipity['GET']['adminA
     $data['cat'] = $this_cat;
     if (!is_array($this_cat) || (isset($this_cat['authorid']) && $this_cat['authorid'] == '0') || isset($read_groups[0])) {
         $data['selectAllReadAuthors'] = true;
-        }
+    }
     if (!is_array($this_cat) || (isset($this_cat['authorid']) && $this_cat['authorid'] == '0') || isset($write_groups[0])) {
         $data['selectAllWriteAuthors'] = true;
-        }
+    }
 
-        $categories = serendipity_fetchCategories('all');
-        $categories = serendipity_walkRecursive($categories, 'categoryid', 'parentid', VIEWMODE_THREADED);
+    $categories = serendipity_fetchCategories('all');
+    $categories = serendipity_walkRecursive($categories, 'categoryid', 'parentid', VIEWMODE_THREADED);
     $data['categories'] = $categories;
     serendipity_plugin_api::hook_event('backend_category_showForm', $cid, $this_cat);
-            }
+}
 
-
+    
 
 if ( $serendipity['GET']['adminAction'] == 'view' ) {
     if (empty($admin_category)) {

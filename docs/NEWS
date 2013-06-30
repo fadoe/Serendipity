@@ -1,6 +1,6 @@
 # $Id$
 
-Version 1.7.1 ()
+Version 2.0 ()
 ------------------------------------------------------------------------
 
     * Implemented patch https://github.com/s9y/Serendipity/pull/15
@@ -14,7 +14,17 @@ Version 1.7.1 ()
 
     * Use Smarty for backend display output
 
+Version 1.7.1 ()
+------------------------------------------------------------------------
+
     * Upgrader will now remove/delete the browsercompatibility plugin
+
+    * Fixed Media Library exclude path to not show/proceed ckeditor/kcfinders .thumbs dir
+
+    * Fixed bulletproof->colorset GET mismatch with categorytemplates plugin
+      config.inc.php [Line 29]
+
+    * German translation for stable archives added (YL)
 
     * Fixed curl result bug in spartacus plugin
 
@@ -64,17 +74,17 @@ Version 1.7 (May 11th 2013)
 
     * Onyx, Net_URL classes: Remove PHP4 style constructor due to
       PHP5 error "Constructor already defined"
-
+          
     * Improved RSS sidebarplugin to support Atom 
-
+    
     * Bundled simplepie
-
+    
     * For Blogs running on a non-UTF-8 language, set a Smarty constant
-      to indicate the actually used charset. 
+      to indicate the actually used charset.
 
     * Added to use MyISAM handler for s9y tables (we do not use InnoDB
       features, but rely on MyISAM fulltext)
-      
+
     * fixed defaultBaseURL did not show up installer. Thanks to onli.
       Follow up from c292bad
 

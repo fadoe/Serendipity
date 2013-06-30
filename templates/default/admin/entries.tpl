@@ -1,7 +1,10 @@
+<script type="text/javascript" language="JavaScript" src="serendipity_define.js.php"></script>
+<script type="text/javascript" language="JavaScript" src="serendipity_editor.js"></script>
+
 <!-- ADMIN-ENTRY TEMPLATE: entries.tpl START -->
 {*** POSSIBLE ERROR MESSAGES START ***}
 {if $entry_vars.errMsg}
-    <div class="serendipityAdminMsgError"><img style="width: 22px; height: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="{serendipity_getFile file='admin/img/admin_msg_error.png'}" alt="" />{$entry_vars.errMsg}</div>
+    <div class="serendipityAdminMsgError msg_error"><img class="img_error" src="{serendipity_getFile file='admin/img/admin_msg_error.png'}" alt="" />{$entry_vars.errMsg}</div>
 {/if}
 {*** POSSIBLE ERROR MESSAGES END ***}
 {*** MAIN ENTRY FORM START ***}
@@ -74,7 +77,6 @@
 
                 selector_toggle['categoryselector'] = '{$entry_vars.cat_state}';
             </script>
-            <script type="text/javascript" language="JavaScript" src="{serendipity_getFile file='admin/category_selector.js'}"></script>
             <script type="text/javascript" language="JavaScript">
                 addLoadEvent(showItem);
             </script>
@@ -107,7 +109,6 @@
                 toolbarentry.style.display = '';
             </script>
         </td>
-
         {else}
         <td colspan="2"><b>{$CONST.ENTRY_BODY}</b></td>
         <td>{serendipity_hookPlugin hook="backend_entry_toolbar_body" data=$entry_data.entry hookAll="true"}</td>
@@ -225,6 +226,4 @@
 {/if}
 {*** SPAWN WYSIWYG EDITORS END ***}
 
-<script type="text/javascript" language="JavaScript" src="serendipity_define.js.php"></script>
-<script type="text/javascript" language="JavaScript" src="serendipity_editor.js"></script>
 <!-- ADMIN-ENTRY TEMPLATE: entries.tpl END -->

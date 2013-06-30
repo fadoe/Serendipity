@@ -330,7 +330,7 @@ function serendipity_load_configuration($author = null) {
     $config_loaded[$author] = true;
 
     // Set baseURL to defaultBaseURL
-    if ((empty($author) || empty($serendipity['baseURL'])) && (! empty($serendipity['defaultBaseURL']))) {
+    if ((empty($author) || empty($serendipity['baseURL'])) && isset($serendipity['defaultBaseURL'])) {
         $serendipity['baseURL'] = $serendipity['defaultBaseURL'];
     }
     
@@ -665,6 +665,24 @@ function serendipity_restoreVar(&$source, &$target) {
 }
 
 /**
+ * Echo Javascript code to set a cookie variable
+ *
+ * This function is useful if your HTTP headers were already sent, but you still want to set a cookie
+ * Note that contents are echo'd, not return'd.
+ *
+ * @access public
+ * @param   string      The name of the cookie variable
+ * @param   string      The contents of the cookie variable
+ * @return  null
+ */
+function serendipity_JSsetCookie($name, $value) {
+    $name  = htmlentities($name);
+    $value = urlencode($value);
+
+    echo '<script type="text/javascript">SetCookie("' . $name . '", unescape("' . $value . '"))</script>' . "\n";
+}
+
+/**
  * Set a Cookie via HTTP calls, and update $_COOKIE plus $serendipity['COOKIE'] array.
  *
  * @access public
@@ -841,7 +859,7 @@ function serendipity_iframe_create($mode, &$entry) {
 
     return '<iframe src="serendipity_admin.php?serendipity[is_iframe]=true&amp;serendipity[iframe_mode]=' . $mode . '" id="serendipity_iframe" name="serendipity_iframe" ' . $attr . ' width="100%" frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" title="Serendipity">'
          . IFRAME_WARNING
-         . '</iframe><br /><br />';
+         . '</iframe>';
 }
 
 /**
@@ -1961,7 +1979,7 @@ function serendipity_reportXSRF($type = 0, $reset = true, $use_config = false) {
     // Set this in your serendipity_config_local.inc.php if you want HTTP Referrer blocking:
     // $serendipity['referrerXSRF'] = true;
 
-    $string = '<div class="serendipityAdminMsgError XSRF_' . $type . '"><img style="width: 22px; height: 22px; border: 0px; padding-right: 4px; vertical-align: middle" src="' . serendipity_getTemplateFile('admin/img/admin_msg_error.png') . '" alt="" />' . ERROR_XSRF . '</div>';
+    $string = '<div class="serendipityAdminMsgError msg_error XSRF_' . $type . '"><img class="img_error" src="' . serendipity_getTemplateFile('admin/img/admin_msg_error.png') . '" alt="" />' . ERROR_XSRF . '</div>';
     if ($reset) {
         // Config key "referrerXSRF" can be set to enable blocking based on HTTP Referrer. Recommended for Paranoia.
         if (($use_config && isset($serendipity['referrerXSRF']) && $serendipity['referrerXSRF']) || $use_config === false) {

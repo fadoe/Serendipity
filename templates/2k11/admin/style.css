@@ -330,6 +330,12 @@ nav ol {
     clear: both;
 }
 
+.plainList {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
 
 /* ICON FONT:; http://fortawesome.github.com/Font-Awesome/
    ----------------------------------------------------------------- */
@@ -401,7 +407,6 @@ nav ol {
 /* BACKEND HELPER CLASSES
    ----------------------------------------------------------------- */
 .icon_link,
-.logged_in,
 #insert_image,
 form > a,
 #user_menu li,
@@ -818,6 +823,7 @@ input[type=checkbox],
 
 .serendipity_commentDirection,
 .configuration_group ul .form_check,
+#serendipity_comments_list details,
 #preview,
 .form_field,
 .form_area,
@@ -880,7 +886,8 @@ input[type=checkbox],
 .entry_info,
 .pagination,
 .media_choose .preview,
-.media_file_metadata dt {
+.media_file_metadata dt,
+#serendipity_comments_list details {
     clear: both;
 }
 
@@ -928,11 +935,7 @@ a.button_link:focus,
 h1 {
     font-size: 1.71429em;
     line-height: 1.75em;
-    margin: .5em 0 0;
-}
-
-#banner_install h1 {
-    margin: .875em 0;
+    margin: .4375em 0;
 }
 
 h2 {
@@ -947,7 +950,8 @@ h3 {
     margin: 1.16667em 0;
 }
 
-h4 {
+h4,
+#diagnose caption {
     font-size: 1.14286em;
     line-height: 1.3125em;
     margin: 1.3125em 0;
@@ -1130,7 +1134,8 @@ main {
 .configuration_group .form_field input,
 .configuration_group .form_area textarea,
 #uploadform .form_select select,
-#uploadform .form_field input {
+#uploadform .form_field input,
+#diagnose > table {
     width: 100%;
 }
 
@@ -1195,9 +1200,8 @@ main {
     color: #25253d;
 }
 
-#user_menu .logged_in,
 #user_menu ul {
-    margin: 0 0 .75em;
+    margin: .75em 0;
 }
 
 #user_menu li {
@@ -1331,8 +1335,17 @@ fieldset p,
 
 .comment_data,
 .configuration_group h3,
-form > .button_link:first-of-type {
+form > .button_link:first-of-type,
+.upload_form > .form_field:first-child {
     margin-top: 0;
+}
+
+.upload_form > .form_field:first-child {
+    padding-top: .75em;
+}
+
+.installer .configuration_group h3 {
+    margin-top: 1.16667em;
 }
 
 #template_options,
@@ -1394,8 +1407,17 @@ form > .button_link:first-of-type {
 #serendipityScaleImg img,
 .media_file,
 .media_wrap_thumb,
-.plugins_installable > li {
+.plugins_installable > li,
+#dashboard > section {
     border: 1px solid #aaa;
+}
+
+#dashboard > section {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0 0 1em;
+    padding: 0 1em;
 }
 
 .media_wrap_thumb {
@@ -1411,6 +1433,7 @@ form > .button_link:first-of-type {
 
 .zebra_list,
 .option_list,
+#uploads,
 .configure_plugin .odd:first-of-type,
 #categories .odd,
 #categories .even,
@@ -1427,7 +1450,8 @@ form > .button_link:first-of-type {
 .configure_plugin .odd,
 .configure_plugin .even,
 #categories,
-#serendipity_image_folders {
+#serendipity_image_folders,
+.upload_form {
     border-bottom: 1px solid #aaa;
 }
 
@@ -1442,7 +1466,9 @@ form > .button_link:first-of-type {
 .theme_options .odd,
 .configure_plugin .odd,
 #categories .odd,
-#serendipity_image_folders .odd {
+#serendipity_image_folders .odd,
+.upload_form:nth-child(odd),
+.upload_form:nth-child(odd) input[type="file"] {
     background: #eee;
 }
 
@@ -1504,6 +1530,11 @@ form > .button_link:first-of-type {
 
 .status_timestamp {
     min-width: 11em;
+}
+
+.status_timestamp .icon-info-circled {
+    color: #3e5f81;
+    cursor: help;
 }
 
 .show_config_option {
@@ -1711,10 +1742,19 @@ form > .button_link:first-of-type {
 .no-js .template_show_info,
 .no-js .comment_summary,
 .no-js .editor_toolbar,
+.js .additional_info,
+.installer .toggle_info,
 .hidden {
     display: none !important;
     visibility: hidden;
 }
+
+.js .installer .additional_info {
+    display: block !important;
+    visibility: visible;
+}
+
+
 
 input[name="serendipity[filter][fileCategory]"] {
     display: none;
@@ -1764,6 +1804,11 @@ input[name="serendipity[filter][fileCategory]"] {
     .configuration_group .form_area textarea {
         max-width: 320px;
     }
+
+    #user_menu .logged_in {
+        display: block;
+        margin: 0 0 .75em;
+    }
 }
 
 @media only screen and (min-width: 640px) {
@@ -1779,10 +1824,6 @@ input[name="serendipity[filter][fileCategory]"] {
 
     #user_menu li {
         margin: 0 0 0 1em;
-    }
-
-    #user_menu .logged_in {
-        margin: .375em 0;
     }
 }
 
@@ -1812,14 +1853,6 @@ input[name="serendipity[filter][fileCategory]"] {
         margin: 1.71429em 0;
     }
 
-    #user_menu .logged_in {
-        margin: .875em 0 .4375em;
-    }
-
-    #user_menu ul {
-        margin: .4375em 0 .875em;
-    }
-
     #image_directory_edit_form > div > .form_select {
         float: left;
         margin: 0 5% 0 0;
@@ -1828,7 +1861,8 @@ input[name="serendipity[filter][fileCategory]"] {
     #template_select article,
     #serendipityScaleForm,
     #serendipityScaleImg,
-    .media_file {
+    .media_file,
+    #dashboard > section {
         float: left;
         margin: 0 2% 1em 0;
         width: 48%;
@@ -1901,7 +1935,8 @@ input[name="serendipity[filter][fileCategory]"] {
     .configuration_group .form_area,
     .configuration_group fieldset > fieldset,
     #template_select .odd,
-    .media_pane .odd {
+    .media_pane .odd,
+    #dashboard > section:nth-child(odd) {
         clear: left;
     }
 
@@ -1971,6 +2006,15 @@ input[name="serendipity[filter][fileCategory]"] {
         width: auto;
     }
 
+    #user_menu .logged_in {
+        display: inline-block;
+        margin: 0;
+    }
+
+    #user_menu ul {
+        margin: 2em 0 1em;
+    }
+
     #main_menu {
         float: left;
         margin: 0 2% 0 0;
@@ -2027,6 +2071,13 @@ input[name="serendipity[filter][fileCategory]"] {
 
     #content {
         width: 73%;
+    }
+
+    .installer #content {
+        float: none;
+        margin: 0 auto;
+        max-width: 45em;
+        width: 100%;
     }
 
     #edit_entry_status select[multiple],

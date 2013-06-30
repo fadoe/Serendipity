@@ -34,7 +34,7 @@
                 <div class="template_preview">
                 {if $cur_tpl.fullsize_preview || $cur_tpl.preview}
                     {if $cur_tpl.fullsize_preview}
-                        <a href="{$cur_tpl.fullsize_preview}">
+                        <a class="media_fullsize" href="{$cur_tpl.fullsize_preview}">
                             <img src="{$cur_tpl.fullsize_preview}" class="template_preview_img" alt="{$CONST.PREVIEW}" >
                         </a>
                     {else}
@@ -54,9 +54,9 @@
                 </div>
             </div>
 
-            <a class="template_show_info button_link" href="#template_info_cur" title="Show template info" rel="tooltip"><span class="icon-info-circled"></span><span class="visuallyhidden"> Show template info</span></a>
+            <a class="template_show_info button_link" href="#template_info_cur" title="Show template info"><span class="icon-info-circled"></span><span class="visuallyhidden"> Show template info</span></a>
 
-             <a class="button_link" href="?serendipity[adminModule]=templates&amp;serendipity[adminAction]=editConfiguration" title="{$CONST.CONFIGURATION}" rel="tooltip"><span class="icon-cog-alt"></span><span class="visuallyhidden"> {$CONST.CONFIGURATION}</span></a>
+             <a class="button_link" href="?serendipity[adminModule]=templates&amp;serendipity[adminAction]=editConfiguration" title="{$CONST.CONFIGURATION}">{$CONST.CONFIGURATION}</a>
         </article>
 
         <h2>{$CONST.SELECT_TEMPLATE}</h2>
@@ -71,7 +71,7 @@
                         <div class="template_preview">
                         {if $info.fullsize_preview || $info.preview}
                             {if $info.fullsize_preview}
-                                <a href="{$info.fullsize_preview}">
+                                <a class="media_fullsize" href="{$info.fullsize_preview}">
                                     <img src="{$info.fullsize_preview}" class="template_preview_img" alt="{$CONST.PREVIEW}" >
                                 </a>
                             {else}
@@ -91,10 +91,10 @@
                         </div>
                     </div>
 
-                    <a class="template_show_info button_link" href="#template_info_{$info@key}" title="Show template info" rel="tooltip"><span class="icon-info-circled"></span><span class="visuallyhidden"> Show template info</span></a>
+                    <a class="template_show_info button_link" href="#template_info_{$info@key}" title="Show template info"><span class="icon-info-circled"></span><span class="visuallyhidden"> Show template info</span></a>
 
                 {if !$info.unmetRequirements}
-                    <a class="button_link" href="?serendipity[adminModule]=templates&amp;serendipity[adminAction]=install&amp;serendipity[theme]={$template}{$info.info.customURI}" title="{$CONST.SET_AS_TEMPLATE}" rel="tooltip"><span class="icon-download"></span><span class="visuallyhidden"> {$CONST.SET_AS_TEMPLATE}</span></a>
+                    <a class="button_link" href="?serendipity[adminModule]=templates&amp;serendipity[adminAction]=install&amp;serendipity[theme]={$template}{$info.info.customURI}" title="{$CONST.SET_AS_TEMPLATE}">{$CONST.SET_AS_TEMPLATE}</a>
                 {else}
                     <span class="unmet_requirements msg_error"><span class="icon-attention-circled"></span> {$info.unmetRequirements}></span>
                 {/if}

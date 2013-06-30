@@ -1,6 +1,3 @@
-{* functions_plugins_admin.inc.php::function_show_plugins() including output of functions_plugins_admin.inc.php::function ownership() *}
-
-
 {if !$event_only}
     <form action="?serendipity[adminModule]=plugins" method="post">
         <input id="order" name="serendipity[pluginorder]" type="hidden" value="">
@@ -35,11 +32,11 @@
                         </h5>
 
                         <div id="g{$plugin_data['css_key']}" class="pluginmanager_grablet">
-                            <a id="grab{$plugin_data['css_key']}" class="icon_link" href="#" title="Move" rel="tooltip"><span class="icon-move"></span><span class="visuallyhidden"> Move</span></a>{* i18n *}
+                            <a id="grab{$plugin_data['css_key']}" class="icon_link" href="#" title="Move"><span class="icon-move"></span><span class="visuallyhidden"> Move</span></a>{* i18n *}
                         </div>
 
                     {if $plugin_data['can_configure']}
-                        <a class="pluginmanager_configure button_link icon_link" href="?serendipity[adminModule]=plugins&amp;serendipity[plugin_to_conf]={$plugin_data['key']}" title="{$CONST.CONFIGURATION}" rel="tooltip"><span class="icon-cog-alt"></span><span class="visuallyhidden"> {$CONST.CONFIGURATION}</span></a>
+                        <a class="pluginmanager_configure button_link icon_link" href="?serendipity[adminModule]=plugins&amp;serendipity[plugin_to_conf]={$plugin_data['key']}" title="{$CONST.CONFIGURATION}"><span class="icon-cog-alt"></span><span class="visuallyhidden"> {$CONST.CONFIGURATION}</span></a>
                     {/if}
 
                         <ul class="pluginmanager_plugininfo plainList">
@@ -79,7 +76,7 @@
                                     &nbsp;
                                 {else}
                                     <a href="?{$serendipity_setFormTokenUrl}&amp;serendipity[adminModule]=plugins&amp;submit=move+up&amp;serendipity[plugin_to_move]={$plugin_data.key}{if $event_only}&amp;serendipity[event_plugin]=true{/if}">
-                                        <img src="{serendipity_getFile file='admin/img/uparrow.png'}" height="16" width="16" border="0" alt="' . UP . '" />
+                                        <span class="icon-up-open"></span><span class="visuallyhidden"> UP</span>
                                     </a>
                                 {/if}
 
@@ -87,7 +84,7 @@
                                     &nbsp;
                                 {else}
                                     <a href="?{$serendipity_setFormTokenUrl}&amp;serendipity[adminModule]=plugins&amp;submit=move+down&amp;serendipity[plugin_to_move]={$plugin_data.key}{if $event_only}&amp;serendipity[event_plugin]=true{/if}">
-                                        <img src="{serendipity_getFile file='admin/img/downarrow.png'}" height="16" width="16" alt="'. DOWN .'" border="0" />
+                                        <span class="icon-down-open"></span><span class="visuallyhidden"> DOWN</span>
                                     </a>
                                 {/if}
                             </li>
@@ -101,7 +98,7 @@
             <span class="plugin_count block_level">{$CONST.PLUGIN_AVAILABLE_COUNT|sprintf:$total}</span>
         </div>
         <div class="form_buttons">
-            <input class="state_cancel" name="REMOVE" type="submit" title="{$CONST.REMOVE_TICKED_PLUGINS}" rel="tooltip" value="{$CONST.DELETE}">
-            <input name="SAVE" type="submit" title="{$CONST.SAVE_CHANGES_TO_LAYOUT}" rel="tooltip" value="{$CONST.SAVE}">
+            <input class="state_cancel" name="REMOVE" type="submit" title="{$CONST.REMOVE_TICKED_PLUGINS}" value="{$CONST.DELETE}">
+            <input name="SAVE" type="submit" title="{$CONST.SAVE_CHANGES_TO_LAYOUT}" value="{$CONST.SAVE}">
         </div>
     </form>

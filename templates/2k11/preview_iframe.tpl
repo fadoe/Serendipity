@@ -26,10 +26,7 @@
     <link rel="stylesheet" href="{serendipity_getFile file="user.css"}">
 {/if}
     <script src="{serendipity_getFile file="js/modernizr-2.6.2.min.js"}"></script>
-<<<<<<< HEAD
-=======
     {serendipity_hookPlugin hook="backend_header" hookAll="true"}
->>>>>>> 2.0
 <script>
     window.onload = function() {ldelim}
         parent.document.getElementById('serendipity_iframe').style.height = document.getElementById('content').offsetHeight
@@ -46,9 +43,6 @@
 <div id="page" class="clearfix container">
     <div class="clearfix{if $leftSidebarElements > 0 && $rightSidebarElements > 0} col3{elseif $leftSidebarElements > 0 && $rightSidebarElements == 0} col2l{else} col2r{/if}">
         <main id="content" style="padding: 1em 0; margin: 0;">
-<<<<<<< HEAD
-        {$preview}
-=======
         {if $mode == 'preview'}
             <div class="clearfix">
             <div id="serendipity_preview_spacer" style="float: left; height: 225px"></div>
@@ -70,9 +64,9 @@
                 </div>
             {/if}
         {/if}
+    <div class="clearfix{if $leftSidebarElements > 0 && $rightSidebarElements > 0} col3{elseif $leftSidebarElements > 0 && $rightSidebarElements == 0} col2l{else} col2r{/if}">
+        <main id="content" style="padding: 1em 0; margin: 0;">
         {$preview}
-        </div>
->>>>>>> 2.0
         </main>
     </div>
 </div>

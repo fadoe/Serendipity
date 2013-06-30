@@ -6,8 +6,7 @@
     <title>{$CONST.SERENDIPITY_ADMIN_SUITE}</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="{serendipity_getFile file='admin/style.css'}">
-    <script src="{serendipity_getFile file='js/modernizr-2.6.2.min.js'}"></script>
-{serendipity_hookPlugin hook="backend_header" hookAll="true"}
+    <script src="{serendipity_getFile file='admin/js/modernizr-2.6.2.min.js'}"></script>
 </head>
 <body id="serendipity_admin_page">
     <header id="top">
@@ -18,17 +17,17 @@
         </div>
     </header>
 
-    <main class="clearfix serendipityAdminContent">
+    <main class="clearfix serendipityAdminContent installer">
         <div id="content" class="clearfix">
         {if $is_errors && is_array($errors)}
             {foreach $errors AS $error}
-            <span class="msg_error"><span class="icon-attention-circled"></span> {$error}</span>
+            <span class="msg_error">{$error}</span>
             {/foreach}
         {/if}
         {if $getstepint0}
             <h2>{$CONST.WELCOME_TO_INSTALLATION}</h2>
 
-            <h3>{$CONST.FIRST_WE_TAKE_A_LOOK}</h3>
+            <p>{$CONST.FIRST_WE_TAKE_A_LOOK}</p>
 
             <p>{$print_ERRORS_ARE_DISPLAYED_IN}</p>
 
@@ -219,16 +218,19 @@
                 </ul>
             {/if}
             {if $showWritableNote}
-                <span class="msg_notice"><span class="icon-info-circled"></span> {$CONST.PROBLEM_PERMISSIONS_HOWTO|sprintf:'chmod 1777'}</span>
+                <span class="msg_notice">{$CONST.PROBLEM_PERMISSIONS_HOWTO|sprintf:'chmod 1777'}</span>
             {/if}
             {if $errorCount > 0}
-                <span class="msg_error"><span class="icon-attention-circled"></span> {$CONST.PROBLEM_DIAGNOSTIC}</span>
+                <span class="msg_error">{$CONST.PROBLEM_DIAGNOSTIC}</span>
 
                 <a class="block_level" href="serendipity_admin.php">{$CONST.RECHECK_INSTALLATION}</a>
             {else}
-                <span class="msg_notice"><span class="icon-info-circled"></span> {$CONST.SELECT_INSTALLATION_TYPE}:</span>
+                <p><strong>{$CONST.SELECT_INSTALLATION_TYPE}:</strong></p>
 
-                <div><a href="?serendipity[step]=2a">{$CONST.SIMPLE_INSTALLATION}</a> - <a href="?serendipity[step]=2b">{$CONST.EXPERT_INSTALLATION}</a></div>
+                <div class="form_buttons">
+                    <a class="button_link state_submit" href="?serendipity[step]=2a">{$CONST.SIMPLE_INSTALLATION}</a>
+                    <a class="button_link state_submit" href="?serendipity[step]=2b">{$CONST.EXPERT_INSTALLATION}</a>
+                </div>
             {/if}
             </div>
         {elseif $s9yGETstep == '2a'}
@@ -245,12 +247,12 @@
                 {if $ob_serendipity_printConfigTemplate}{$ob_serendipity_printConfigTemplate}{/if}
                 <input name="submit" type="submit" value="{$CONST.COMPLETE_INSTALLATION}">
             </form>
-        {elseif $getstepint3}
+        {elseif $s9yGETstep == '3'}
             <h3>{$CONST.CHECK_DATABASE_EXISTS}</h3>
             {if is_array($authors_query)}
-            <span class="msg_success"><span class="icon-ok-circled"></span> <strong>{$CONST.THEY_DO}</strong>, {$CONST.WONT_INSTALL_DB_AGAIN}</span>
+            <span class="msg_success"><strong>{$CONST.THEY_DO}</strong>, {$CONST.WONT_INSTALL_DB_AGAIN}</span>
             {else}
-            <span class="msg_error"><span class="icon-attention-circled"></span> <strong>{$CONST.THEY_DONT}</strong></span>
+            <span class="msg_error"><strong>{$CONST.THEY_DONT}</strong></span>
 
             <ol>
                 <li>{$CONST.CREATE_DATABASE}{if $install_DB} <strong>{$CONST.DONE}</strong>{/if}</li>
@@ -261,24 +263,24 @@
             {/if}
             <h3>{$CONST.ATTEMPT_WRITE_FILE|sprintf:'.htaccess'}</h3>
             {if $errors_sif === true}
-            <span class="msg_success"><span class="icon-ok-circled"></span> {$CONST.DONE}</span>
+            <span class="msg_success">{$CONST.DONE}</span>
             {else}
             <h4>{$CONST.FAILED}</h4>
 
             <ul class="plainList">
             {foreach $errors_sif AS $error_f}
-                <li><span class="msg_error"><span class="icon-attention-circled"></span> {$error_f}</span></li>
+                <li><span class="msg_error">{$error_f}</span></li>
             {/foreach}
             </ul>
             {/if}
             {if $s9y_installed}
-            <span class="msg_success"><span class="icon-ok-circled"></span> {$CONST.SERENDIPITY_INSTALLED}</span>
+            <span class="msg_success">{$CONST.SERENDIPITY_INSTALLED}</span>
 
             <p><strong>{$CONST.THANK_YOU_FOR_CHOOSING}</strong></p>
 
             <a class="block_level" href="{$smarty.post.serendipityHTTPPath}">{$CONST.VISIT_BLOG_HERE}</a>
             {else}
-            <span class="msg_error"><span class="icon-attention-circled"></span> {$CONST.ERROR_DETECTED_IN_INSTALL}</span>
+            <span class="msg_error">{$CONST.ERROR_DETECTED_IN_INSTALL}</span>
             {/if}
         {/if}
         </div>

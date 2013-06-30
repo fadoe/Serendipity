@@ -69,7 +69,7 @@
         {foreach $rip_image AS $ripimg}
         <span class="msg_dialogue"><span class="icon-help-circled"></span> {$ripimg}</span>
         {/foreach}
-        <div class="dialogue_delrip form_buttons">
+        <div class="form_buttons">
             <a class="button_link icon_link" href="{$newLoc}">{$CONST.DUMP_IT}</a>
             <a class="button_link icon_link" href="{$smarty.server.HTTP_REFERER|escape}">{$CONST.NOT_REALLY}</a>
         </div>
@@ -237,9 +237,9 @@
                 <span class="folder_name"><span class="icon-folder-open"></span> {$folder.name}</span>
 
                 <ul class="plainList clearfix edit_actions">
-                    <li><a class="button_link" href="?serendipity[adminModule]=images&amp;serendipity[adminAction]=directoryEdit&amp;serendipity[dir]={$folder.relpath|escape:'html'}" title="{$CONST.EDIT} {$folder.name}" rel="tooltip"><span class="icon-edit"></span><span class="visuallyhidden"> {$CONST.EDIT}</span></a></li>
+                    <li><a class="button_link" href="?serendipity[adminModule]=images&amp;serendipity[adminAction]=directoryEdit&amp;serendipity[dir]={$folder.relpath|escape:'html'}" title="{$CONST.EDIT} {$folder.name}"><span class="icon-edit"></span><span class="visuallyhidden"> {$CONST.EDIT}</span></a></li>
 
-                    <li><a class="button_link" href="?serendipity[adminModule]=images&amp;serendipity[adminAction]=directoryDelete&amp;serendipity[dir]={$folder.relpath|escape:'html'}" title="{$CONST.DELETE} {$folder.name}" rel="tooltip"><span class="icon-trash"></span><span class="visuallyhidden"> {$CONST.DELETE}</span></a></li>
+                    <li><a class="button_link" href="?serendipity[adminModule]=images&amp;serendipity[adminAction]=directoryDelete&amp;serendipity[dir]={$folder.relpath|escape:'html'}" title="{$CONST.DELETE} {$folder.name}"><span class="icon-trash"></span><span class="visuallyhidden"> {$CONST.DELETE}</span></a></li>
                 </ul>
             </div>
     {/foreach}
