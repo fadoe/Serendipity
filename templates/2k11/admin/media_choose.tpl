@@ -49,7 +49,7 @@
     <script src="{serendipity_getFile file="admin/js/dragdrop.js"}"></script>
     <script src="{serendipity_getFile file='admin/imgedit.js'}" ></script>
 {/if}
-    <script src="{serendipity_getFile file='admin/js/modernizr-2.6.2.min.js'}"></script>
+    <script src="{serendipity_getFile file='js/modernizr-2.6.2.min.js'}"></script>
     <script src="{serendipity_getFile file='YahooUI/treeview/YAHOO.js'}"></script>
     <script src="{serendipity_getFile file='YahooUI/treeview/treeview.js'}"></script>
 {serendipity_hookPlugin hook="backend_header" hookAll="true"}
