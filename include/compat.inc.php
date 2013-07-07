@@ -9,22 +9,6 @@ if (IN_serendipity !== true) {
 $serendipity = array();
 @ini_set('magic_quotes_runtime', 'off');
 
-if (!defined('PATH_SEPARATOR')) {
-    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        define('PATH_SEPARATOR', ';');
-    } else {
-        define('PATH_SEPARATOR', ':');
-    }
-}
-
-if (!defined('DIRECTORY_SEPARATOR')) {
-    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        define('DIRECTORY_SEPARATOR', '\\');
-    } else {
-        define('DIRECTORY_SEPARATOR', '/');
-    }
-}
-
 /**
  * Create a snapshot of the current memory usage
  *
@@ -138,44 +122,6 @@ if (!function_exists('errorToExceptionHandler')) {
     }
 }
 
-if (!function_exists('file_get_contents')) {
-    function file_get_contents($filename, $use_include_path = 0) {
-        $file = fopen($filename, 'rb', $use_include_path);
-        $data = '';
-        if ($file) {
-            while (!feof($file)) {
-                $data .= fread($file, 4096);
-            }
-            fclose($file);
-        }
-
-        return $data;
-    }
-}
-
-if (!isset($_REQUEST)) {
-    $_REQUEST = &$HTTP_REQUEST_VARS;
-}
-if (!isset($_POST)) {
-    $_POST = &$HTTP_POST_VARS;
-}
-
-if (!isset($_GET)) {
-    $_GET = &$HTTP_GET_VARS;
-}
-
-if (!isset($_SESSION)) {
-    $_SESSION = &$HTTP_SESSION_VARS;
-}
-
-if (!isset($_COOKIE)) {
-    $_COOKIE = &$HTTP_COOKIE_VARS;
-}
-
-if (!isset($_SERVER)) {
-    $_SERVER = &$HTTP_SERVER_VARS;
-}
-
 if (extension_loaded('filter') && function_exists('input_name_to_filter') && input_name_to_filter(ini_get('filter.default')) !== FILTER_UNSAFE_RAW) {
     foreach ($_POST as $key => $value) {
         $_POST[$key] = input_get(INPUT_POST, $key, FILTER_UNSAFE_RAW);
@@ -283,9 +229,8 @@ function serendipity_get_bool($item) {
 
     if (isset($translation[$item])) {
         return $translation[$item];
-    } else {
-        return $item;
     }
+    return $item;
 }
 
 /**
