@@ -4,17 +4,6 @@
 
 $global_debug = false;
 
-if ($global_debug) {
-    #apd_set_pprof_trace();
-
-    function microtime_float() {
-        list($usec, $sec) = explode(" ", microtime());
-        return ((float)$usec + (float)$sec);
-    }
-
-    $time_start = microtime_float();
-}
-
 // We need to set this to return a 200 since we use .htaccess ErrorDocument
 // rules to handle archives.
 header('HTTP/1.0 200');
@@ -23,12 +12,14 @@ header('Status: 200 OK');
 // Session are needed to also remember an autologin user on the frontend
 ob_start();
 include('serendipity_config.inc.php');
+if ($global_debug) {
+    $stopWatch = new \Symfony\Component\Stopwatch\Stopwatch();
+    $stopWatch->start('renderPage');
+}
 header('Content-Type: text/html; charset='. LANG_CHARSET);
 if ($serendipity['expose_s9y']) {
     header('X-Blog: Serendipity'); // Used for installer detection
 }
-
-$request = new HTTP_Request();
 
 if ($serendipity['CacheControl']) {
     if (!empty($HTTP_SERVER_VARS['SERVER_SOFTWARE']) && strstr($HTTP_SERVER_VARS['SERVER_SOFTWARE'], 'Apache/2')) {
@@ -667,8 +658,8 @@ if (!defined('NO_EXIT')) {
 
 if ($global_debug) {
     /* TODO: Remove (hide) this debug */
-    echo '<div id="s9y_debug" style="text-align: center; color: red; font-size: 10pt; font-weight: bold; padding: 10px">Page delivered in '. round(microtime_float()-$time_start,6) .' seconds, '. sizeof(get_included_files()) .' files included</div>';
-    echo '</div>';
+    $event = $stopWatch->stop('renderPage');
+    echo '<div id="s9y_debug" style="text-align: center; color: red; font-size: 10pt; font-weight: bold; padding: 10px">Page delivered in '. round($event->getDuration() / 60, 6) .' seconds, '. sizeof(get_included_files()) .' files included</div>';
 }
 
 /* vim: set sts=4 ts=4 expandtab : */
