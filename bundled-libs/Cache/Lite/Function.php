@@ -16,8 +16,6 @@
 * @author Fabien MARTY <fab@php.net>
 */
 
-require_once dirname(__FILE__) . '/../Lite.php';
-
 class Cache_Lite_Function extends Cache_Lite
 {
 

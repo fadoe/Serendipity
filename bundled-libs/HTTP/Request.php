@@ -43,10 +43,6 @@
 // echo $a->getResponseBody();
 //
 
-require_once(dirname(__FILE__) . '/../PEAR.php');
-require_once(dirname(__FILE__) . '/../Net/Socket.php');
-require_once(dirname(__FILE__) . '/../Net/URL.php');
-
 define('HTTP_REQUEST_METHOD_GET',     'GET',     true);
 define('HTTP_REQUEST_METHOD_HEAD',    'HEAD',    true);
 define('HTTP_REQUEST_METHOD_POST',    'POST',    true);

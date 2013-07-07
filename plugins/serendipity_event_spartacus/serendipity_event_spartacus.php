@@ -391,7 +391,6 @@ class serendipity_event_spartacus extends serendipity_event
             $data = file_get_contents($target);
             $this->outputMSG('success', sprintf(PLUGIN_EVENT_SPARTACUS_FETCHED_BYTES_CACHE, strlen($data), $target));
         } else {
-            require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
             $options = array('allowRedirects' => true, 'maxRedirects' => 5);
             serendipity_plugin_api::hook_event('backend_http_request', $options, 'spartacus');
             serendipity_request_start();

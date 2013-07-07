@@ -8,6 +8,8 @@ if (defined('S9Y_FRAMEWORK')) {
 
 @define('S9Y_FRAMEWORK', true);
 
+require_once 'init_autoload.php';
+
 if (!headers_sent()) {
     // Only set the session name, if no session has yet been issued.
     if (session_id() == '') {
@@ -191,32 +193,32 @@ if ( !defined('IN_installer') && IS_installed === false ) {
 
 /* Do the PEAR dance. If $serendipity['use_PEAR'] is set to FALSE, Serendipity will first put its own PEAR include path.
    By default, a local PEAR will be used. */
-if (function_exists('get_include_path')) {
-    $old_include = @get_include_path();
-} else {
-    $old_include = @ini_get('include_path');
-}
-
-
-$new_include = ($serendipity['use_PEAR'] ? $old_include . PATH_SEPARATOR : '')
-             . S9Y_INCLUDE_PATH . 'bundled-libs/' . PATH_SEPARATOR
-             . S9Y_INCLUDE_PATH . 'bundled-libs/Smarty/libs/' . PATH_SEPARATOR
-             . $serendipity['serendipityPath'] . PATH_SEPARATOR
-             . (!$serendipity['use_PEAR'] ? $old_include . PATH_SEPARATOR : '');
-
-if (function_exists('set_include_path')) {
-    $use_include = @set_include_path($new_include);
-} else {
-    $use_include = @ini_set('include_path', $new_include);
-}
-
-if ($use_include !== $false && $use_include == $new_include) {
-    @define('S9Y_PEAR',      true);
-    @define('S9Y_PEAR_PATH', '');
-} else {
-    @define('S9Y_PEAR', false);
-    @define('S9Y_PEAR_PATH', S9Y_INCLUDE_PATH . 'bundled-libs/');
-}
+//if (function_exists('get_include_path')) {
+//    $old_include = @get_include_path();
+//} else {
+//    $old_include = @ini_get('include_path');
+//}
+//
+//
+//$new_include = ($serendipity['use_PEAR'] ? $old_include . PATH_SEPARATOR : '')
+//             . S9Y_INCLUDE_PATH . 'bundled-libs/' . PATH_SEPARATOR
+//             . S9Y_INCLUDE_PATH . 'bundled-libs/Smarty/libs/' . PATH_SEPARATOR
+//             . $serendipity['serendipityPath'] . PATH_SEPARATOR
+//             . (!$serendipity['use_PEAR'] ? $old_include . PATH_SEPARATOR : '');
+//
+//if (function_exists('set_include_path')) {
+//    $use_include = @set_include_path($new_include);
+//} else {
+//    $use_include = @ini_set('include_path', $new_include);
+//}
+//
+//if ($use_include !== $false && $use_include == $new_include) {
+//    @define('S9Y_PEAR',      true);
+//    @define('S9Y_PEAR_PATH', '');
+//} else {
+//    @define('S9Y_PEAR', false);
+//    @define('S9Y_PEAR_PATH', S9Y_INCLUDE_PATH . 'bundled-libs/');
+//}
 /* PEAR path setup inclusion finished */
 
 if (defined('IN_installer') && IS_installed === false) {

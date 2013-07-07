@@ -598,10 +598,13 @@ var $filter_defaults;
                                       . " WHERE C.id = '" . (int)$comment_id . "' AND C.entry_id=L.entry_id AND C.entry_id=E.id "
                                       . " AND C.author=L.author AND C.url=L.url AND C.referer=L.referer "
                                       . " AND C.ip=L.ip AND C.body=L.body", true, 'assoc');
-        if (!is_array($comment)) return;
+        if (!is_array($comment)) {
+            return;
+        }
 
-        require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
-        if (function_exists('serendipity_request_start')) serendipity_request_start();
+        if (function_exists('serendipity_request_start')) {
+            serendipity_request_start();
+        }
 
         switch($where) {
             case 'akismet.com':
@@ -633,8 +636,9 @@ var $filter_defaults;
         global $serendipity;
 
         $ret = false;
-        require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
-        if (function_exists('serendipity_request_start')) serendipity_request_start();
+        if (function_exists('serendipity_request_start')) {
+            serendipity_request_start();
+        }
 
         switch($where) {
             case 'akismet.com':
@@ -1053,7 +1057,6 @@ var $filter_defaults;
 
                         // Check Trackback URLs?
                         if (($addData['type'] == 'TRACKBACK' || $addData['type'] == 'PINGBACK') && serendipity_db_bool($this->get_config('trackback_check_url'))) {
-                            require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
 
                             if (function_exists('serendipity_request_start')) serendipity_request_start();
                             $req     = new HTTP_Request($addData['url'], array('allowRedirects' => true, 'maxRedirects' => 5, 'readTimeout' => array(5,0)));

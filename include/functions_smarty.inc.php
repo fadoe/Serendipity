@@ -867,19 +867,9 @@ function serendipity_smarty_init($vars = array()) {
             // Set a session variable if Smarty fails:
             $prev_smarty = $_SESSION['no_smarty'];
             $_SESSION['no_smarty'] = true;
-            
+
             if (LANG_CHARSET != 'UTF-8') {
                 @define('SMARTY_RESOURCE_CHAR_SET', LANG_CHARSET);
-            }
-
-            // Default Smarty Engine will be used
-            @define('SMARTY_DIR', S9Y_PEAR_PATH . 'Smarty/libs/');
-            if (!class_exists('Smarty')) {
-                include_once SMARTY_DIR . 'Smarty.class.php';
-            }
-
-            if (!class_exists('Smarty')) {
-                return false;
             }
 
             // Load serendipity smarty class loading class
@@ -908,8 +898,8 @@ function serendipity_smarty_init($vars = array()) {
             #$serendipity['smarty']->testInstall();exit;
 
             /** 
-             * prüfe auf eventuelle API Änderungen in 3.2 [smarty_modifier_foobar, --> [smarty_modifier_foobar, smarty_function_foobar, smarty_block_foobar] (siehe class) ] 
-             * smarty_modifier_foobar(Smarty $smarty, $string, …) vs. smarty_modifier_foobar($string, …)
+             * prï¿½fe auf eventuelle API ï¿½nderungen in 3.2 [smarty_modifier_foobar, --> [smarty_modifier_foobar, smarty_function_foobar, smarty_block_foobar] (siehe class) ] 
+             * smarty_modifier_foobar(Smarty $smarty, $string, ï¿½) vs. smarty_modifier_foobar($string, ï¿½)
              **/
             $serendipity['smarty']->registerPlugin('modifier', 'makeFilename', 'serendipity_makeFilename');
             $serendipity['smarty']->registerPlugin('modifier', 'xhtml_target', 'serendipity_xhtml_target');
@@ -1026,7 +1016,7 @@ function serendipity_smarty_init($vars = array()) {
         if (file_exists($config)) {
             include_once $config;
         }
-        
+
         if (is_array($template_loaded_config)) {
             $template_vars =& $template_loaded_config;
             $serendipity['smarty']->assignByRef('template_option', $template_vars);

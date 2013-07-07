@@ -2,8 +2,6 @@
 # Copyright (c) 2003-2005, Jannis Hermanns (on behalf the Serendipity Developer Team)
 # All rights reserved.  See LICENSE file for licensing details
 
-require_once S9Y_PEAR_PATH . 'Onyx/RSS.php';
-
 class Serendipity_Import_Generic extends Serendipity_Import {
     var $info        = array('software' => IMPORT_GENERIC_RSS);
     var $data        = array();
@@ -136,7 +134,6 @@ class Serendipity_Import_Generic extends Serendipity_Import {
         
         $serendipity['noautodiscovery'] = 1;
         $uri = $this->data['url'];
-        require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
         serendipity_request_start();
         $req = new HTTP_Request($uri, array('allowRedirects' => true, 'maxRedirects' => 5));
         $res = $req->sendRequest();

@@ -6,8 +6,6 @@
  *  	Blogger Importer v0.2, by Jawish Hameed (jawish.org)  	*
  ****************************************************************/
 
-require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
-
 class Serendipity_Import_Blogger extends Serendipity_Import {
     var $info        = array('software' => 'Blogger.com [using API]');
     var $data        = array();

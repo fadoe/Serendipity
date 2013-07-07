@@ -31,10 +31,6 @@
  * @license http://www.php.net/license/3_0.txt
  * @version 0.5.4
  */
-require_once dirname(__FILE__) . '/../../Cache/Lite.php';
-require_once dirname(__FILE__) . '/../../HTTP/Request.php';
-require_once dirname(__FILE__) . '/../CheckIP.php';
-require_once dirname(__FILE__) . '/../DNSBL.php';
 
 class Net_DNSBL_SURBL extends Net_DNSBL {
 

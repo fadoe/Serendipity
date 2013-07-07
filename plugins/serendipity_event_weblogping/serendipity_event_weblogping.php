@@ -1,6 +1,5 @@
 <?php # $Id$
 
-require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
 @serendipity_plugin_api::load_language(dirname(__FILE__));
 
 class serendipity_event_weblogping extends serendipity_event

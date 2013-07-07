@@ -32,7 +32,6 @@
  * @license http://www.php.net/license/3_0.txt
  * @version 0.5.3
  */
-require_once dirname(__FILE__) . '/CheckIP.php';
 
 class Net_DNSBL {
 

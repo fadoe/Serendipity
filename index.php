@@ -28,6 +28,8 @@ if ($serendipity['expose_s9y']) {
     header('X-Blog: Serendipity'); // Used for installer detection
 }
 
+$request = new HTTP_Request();
+
 if ($serendipity['CacheControl']) {
     if (!empty($HTTP_SERVER_VARS['SERVER_SOFTWARE']) && strstr($HTTP_SERVER_VARS['SERVER_SOFTWARE'], 'Apache/2')) {
         header('Cache-Control: no-cache, pre-check=0, post-check=0');

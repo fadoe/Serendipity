@@ -123,7 +123,6 @@ class ONYX_RSS
       {
          clearstatcache();
          
-         require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
          serendipity_request_start();
          $req = new HTTP_Request($uri, array('allowRedirects' => true, 'maxRedirects' => 5));
          $res = $req->sendRequest();
@@ -342,7 +341,6 @@ class ONYX_RSS
    {
       if (function_exists('version_compare') && version_compare(phpversion(), '4.3.0') >= 0)
       {
-         require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
          serendipity_request_start();
          $req = new HTTP_Request($uri);
 

@@ -217,7 +217,6 @@ switch ($serendipity['GET']['adminAction']) {
                 $realname = serendipity_imageAppend($tfile, $target, $serendipity['serendipityPath'] . $serendipity['uploadPath'] . $serendipity['POST']['target_directory'][$tindex]);
             }
 
-            require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
             $options = array('allowRedirects' => true, 'maxRedirects' => 5);
             serendipity_plugin_api::hook_event('backend_http_request', $options, 'image');
             serendipity_request_start();

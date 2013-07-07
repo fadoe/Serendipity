@@ -40,7 +40,6 @@ class s9y_remoterss_XMLTree {
     }
 
     function GetXMLTree($file) {
-        require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
         serendipity_request_start();
         $req = new HTTP_Request($file);
 
@@ -416,7 +415,6 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
 
         // Disabled by now. May get enabled in the future, but for now the extra HTTP call isn't worth trying.
         return true;
-        require_once S9Y_PEAR_PATH . 'HTTP/Request.php';
         serendipity_request_start();
         $req = new HTTP_Request($uri);
 
@@ -487,7 +485,6 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
                     $this->debug('URLCheck succeeded. Touching ' . $feedcache);
                     // Touching the feedcache file will prevent loops of death when the RSS target is the same URI than our blog.
                     @touch($feedcache);
-                    require_once S9Y_PEAR_PATH . 'Onyx/RSS.php';
                     $c = new Onyx_RSS($charset);
                     $this->debug('Running Onyx Parser');
                     $c->parse($rssuri);
@@ -610,8 +607,6 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
                     $this->debug('URLCheck succeeded. Touching ' . $feedcache);
                     // Touching the feedcache file will prevent loops of death when the RSS target is the same URI than our blog.
                     @touch($feedcache);
-
-                    require_once S9Y_PEAR_PATH . '/simplepie/simplepie.inc';
 
                     $this->debug('Running simplepie Parser');
 
