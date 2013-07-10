@@ -441,7 +441,7 @@ function serendipity_fetchUsers($user = '', $group = null, $is_count = false) {
  * @param   string  The name of the sender
  * @return  int     Return code of the PHP mail() function
  */
-function serendipity_sendMail($to, $subject, $message, $fromMail, $headers = NULL, $fromName = NULL) {
+function serendipity_sendMail($to, $subject, $message, $fromMail, $headers = null, $fromName = null) {
     global $serendipity;
 
     if (!is_null($headers) && !is_array($headers)) {
@@ -476,7 +476,7 @@ function serendipity_sendMail($to, $subject, $message, $fromMail, $headers = NUL
         'fromName' => &$fromName,
         'fromMail' => &$fromMail,
         'blogMail' => $serendipity['blogMail'],
-        'version'  => 'Serendipity' . ($serendipity['expose_s9y'] ? '/' . $serendipity['version'] : ''),
+        'version'  => 'Serendipity' . ($serendipity['expose_s9y'] ? '/' . \Serendipity\Version\Version::VERSION : ''),
         'legacy'   => true,
         'headers'  => &$headers,
         'message'  => &$message

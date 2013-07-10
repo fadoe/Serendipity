@@ -294,17 +294,6 @@ function serendipity_detectLang($use_include = false) {
 }
 
 /**
- * Get the current serendipity version, minus the "-alpha", "-beta" or whatever tags
- *
- * @access public
- * @param  string   Serendipity version
- * @return string   Serendipity version, stripped of unneeded parts
- */
-function serendipity_getCoreVersion($version) {
-    return preg_replace('@^([0-9\.]+).*$@', '\1', $version);
-}
-
-/**
  * Make Serendipity emit an error message and terminate the script
  *
  * @access public

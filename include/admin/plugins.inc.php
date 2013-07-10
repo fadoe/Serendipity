@@ -8,6 +8,8 @@ if (!serendipity_checkPermission('adminPlugins')) {
     return;
 }
 
+use Serendipity\Version\Version;
+
 $data = array();
 
 include_once S9Y_INCLUDE_PATH . 'include/plugin_api.inc.php';
@@ -258,9 +260,9 @@ if (isset($_GET['serendipity']['plugin_to_conf'])) {
     $data['only_group'] = $serendipity['GET']['only_group'];
     $requirement_failures = array();
     
-    foreach($pluggroups AS $pluggroup => $groupstack) {
+    foreach($pluggroups as $pluggroup => $groupstack) {
         foreach ($groupstack as $plug) {
-            if ( !empty($plug['requirements']['serendipity']) && version_compare($plug['requirements']['serendipity'], serendipity_getCoreVersion($serendipity['version']), '>') ) {
+            if ( !empty($plug['requirements']['serendipity']) && version_compare($plug['requirements']['serendipity'], Version::getCoreVersion()) {
                 $requirement_failures[$plug['class_name']] = array("s9y" => true);
             }
 

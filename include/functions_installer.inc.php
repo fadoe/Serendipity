@@ -97,7 +97,7 @@ function serendipity_updateLocalConfig($dbName, $dbPrefix, $dbHost, $dbUser, $db
     fwrite($configfp, "\t  Written on ". date('r') ."\n");
     fwrite($configfp, "\t*/\n\n");
 
-    fwrite($configfp, "\t\$serendipity['versionInstalled']  = '{$serendipity['version']}';\n");
+    fwrite($configfp, "\t\$serendipity['versionInstalled']  = '" . \Serendipity\Version\Version::VERSION . "';\n");
     fwrite($configfp, "\t\$serendipity['dbName']            = '" . addslashes($dbName) . "';\n");
     fwrite($configfp, "\t\$serendipity['dbPrefix']          = '" . addslashes($dbPrefix) . "';\n");
     fwrite($configfp, "\t\$serendipity['dbHost']            = '" . addslashes($dbHost) . "';\n");
@@ -694,7 +694,7 @@ function serendipity_installFiles($serendipity_core = '') {
             if ($sock) {
                 fputs($sock, "GET {$serendipityHTTPPath} HTTP/1.0\r\n");
                 fputs($sock, "Host: $serendipity_host\r\n");
-                fputs($sock, "User-Agent: Serendipity/{$serendipity['version']}\r\n");
+                fputs($sock, "User-Agent: Serendipity/{" . \Serendipity\Version\Version::VERSION . "}\r\n");
                 fputs($sock, "Connection: close\r\n\r\n");
 
                 while (!feof($sock) && strlen($response) < 4096) {
@@ -1025,7 +1025,7 @@ function serendipity_check_rewrite($default) {
         if ($sock) {
             fputs($sock, "GET {$_SERVER['PHP_SELF']}nonexistant HTTP/1.0\r\n");
             fputs($sock, "Host: $serendipity_host\r\n");
-            fputs($sock, "User-Agent: Serendipity/{$serendipity['version']}\r\n");
+            fputs($sock, "User-Agent: Serendipity/" . \Serendipity\Version\Version::VERSION . "\r\n");
             fputs($sock, "Connection: close\r\n\r\n");
 
             while (!feof($sock) && strlen($response) < 4096) {
@@ -1167,11 +1167,11 @@ function serendipity_verifyFTPChecksums() {
     // Verify that every file in the checksum list was uploaded correctly
     $basedir = realpath(dirname(__FILE__) . '/../');
 
-    if (!is_array($serendipity['checksums_' . $serendipity['version']])) {
+    if (!is_array($serendipity['checksums_' . \Serendipity\Version\Version::VERSION])) {
         return $badsums;
     }
 
-    foreach ($serendipity['checksums_' . $serendipity['version']] as $prel => $sum) {
+    foreach ($serendipity['checksums_' . \Serendipity\Version\Version::VERSION] as $prel => $sum) {
         $path = $basedir . '/' . $prel;
         // Don't take checksums of directories
         if (is_dir($path)) {

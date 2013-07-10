@@ -10,6 +10,8 @@ if (!serendipity_checkPermission('adminTemplates')) {
     return;
 }
 
+use Serendipity\Version\Version;
+
 class template_option {
     var $config = null;
     var $values = null;
@@ -183,7 +185,7 @@ foreach ($stack as $theme => $info) {
     }
 
     $unmetRequirements = array();
-    if ( isset($info['require serendipity']) && version_compare($info['require serendipity'], serendipity_getCoreVersion($serendipity['version']), '>') ) {
+    if ( isset($info['require serendipity']) && version_compare($info['require serendipity'], Version::getCoreVersion()) {
         $unmetRequirements[] = 'Serendipity '. $info['require serendipity'];
         $data['templates'][$theme]['unmetRequirements'] = sprintf(UNMET_REQUIREMENTS, implode(', ', $unmetRequirements));
     }

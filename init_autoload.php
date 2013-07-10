@@ -1,6 +1,7 @@
 <?php
 
-if (file_exists('vendor/autoload.php')) {
+$loader = null;
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     $loader = include 'vendor/autoload.php';
 }
 

@@ -4,6 +4,8 @@ if (IN_serendipity !== true) {
     die ('Don\'t hack!');
 }
 
+use Serendipity\Version\Version;
+
 require_once(S9Y_INCLUDE_PATH . 'include/functions_installer.inc.php');
 require_once(S9Y_INCLUDE_PATH . 'include/functions_upgrader.inc.php');
 
@@ -267,7 +269,7 @@ if ($serendipity['GET']['action'] == 'ignore') {
 
 }
 
-$data['s9y_version']           = $serendipity['version'];
+$data['s9y_version']           = Version::VERSION;
 $data['s9y_version_installed'] = $serendipity['versionInstalled'];
 
 if (($showAbort && $serendipity['GET']['action'] == 'ignore') || $serendipity['GET']['action'] == 'upgrade') {

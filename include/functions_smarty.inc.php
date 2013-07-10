@@ -6,6 +6,8 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
+use Serendipity\Version\Version;
+
 /**
  * Fetch a list of trackbacks for an entry
  *
@@ -971,7 +973,7 @@ function serendipity_smarty_init($vars = array()) {
         $serendipity['smarty']->assign(
             array(
                 'head_charset'              => LANG_CHARSET,
-                'head_version'              => $serendipity['version'],
+                'head_version'              => Version::VERSION,
                 'head_title'                => $serendipity['head_title'],
                 'head_subtitle'             => $serendipity['head_subtitle'],
                 'head_link_stylesheet'      => $serendipity['smarty_vars']['head_link_stylesheet'],
@@ -995,7 +997,7 @@ function serendipity_smarty_init($vars = array()) {
                 'serendipityBaseURL'        => $serendipity['baseURL'],
                 'serendipityRewritePrefix'  => $serendipity['rewrite'] == 'none' ? $serendipity['indexFile'] . '?/' : '',
                 'serendipityIndexFile'      => $serendipity['indexFile'],
-                'serendipityVersion'        => ($serendipity['expose_s9y'] ? $serendipity['version'] : ''),
+                'serendipityVersion'        => ($serendipity['expose_s9y'] ? Version::VERSION : ''),
 
                 'lang'                      => $serendipity['lang'],
                 'category'                  => $category,

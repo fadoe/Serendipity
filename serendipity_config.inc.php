@@ -10,6 +10,8 @@ if (defined('S9Y_FRAMEWORK')) {
 
 require_once 'init_autoload.php';
 
+use \Serendipity\Version\Version;
+
 if (!headers_sent()) {
     // Only set the session name, if no session has yet been issued.
     if (session_id() == '') {
@@ -46,12 +48,9 @@ if (defined('USE_MEMSNAP')) {
     echo memSnap('Framework init');
 }
 
-// The version string
-$serendipity['version']         = '2.0-alpha1';
-
 // Setting this to 'false' will enable debugging output. All alpa/beta/cvs snapshot versions will emit debug information by default. To increase the debug level (to enable Smarty debugging), set this flag to 'debug'.
 if (!isset($serendipity['production'])) {
-    $serendipity['production']      = (preg_match('@\-(alpha|beta|cvs|rc)@', $serendipity['version']) ? false : true);
+    $serendipity['production']      = Serendipity\Version\Version::isProduction();
 }
 
 // Set error reporting
@@ -271,7 +270,7 @@ if(is_callable($serendipity['errorhandler'], false, $callable_name)) {
     }
 }
 
-define('IS_up2date', version_compare($serendipity['version'], $serendipity['versionInstalled'], '<='));
+define('IS_up2date', Version::compareVersion($serendipity['versionInstalled']) > 0);
 
 /*
  *  Include main functions
@@ -405,7 +404,7 @@ if (IS_up2date === false && !defined('IN_upgrader')) {
         return 1;
     }
 
-    serendipity_die(sprintf(SERENDIPITY_NEEDS_UPGRADE, $serendipity['versionInstalled'], $serendipity['version'], $serendipity['serendipityHTTPPath'] . 'serendipity_admin.php'));
+    serendipity_die(sprintf(SERENDIPITY_NEEDS_UPGRADE, $serendipity['versionInstalled'], Version::VERSION, $serendipity['serendipityHTTPPath'] . 'serendipity_admin.php'));
 }
 
 // We don't care who tells us what to do

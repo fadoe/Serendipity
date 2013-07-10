@@ -4,6 +4,8 @@ if (IN_serendipity !== true) {
     die ("Don't hack!");
 }
 
+use Serendipity\Version\Version;
+
 global $serendipity;
 
 $user = serendipity_fetchAuthor($serendipity['authorid']);
@@ -19,7 +21,7 @@ serendipity_plugin_api::hook_event('backend_frontpage_display', $output);
 $data['backend_frontpage_display'] = $output['more'];
 
 $data['curVersion'] = serendipity_getCurrentVersion();
-$data['usedVersion'] = $serendipity['version'];
+$data['usedVersion'] = Version::VERSION;
 $data['update'] = version_compare($data['usedVersion'], $data['curVersion'], '<');
 
 
