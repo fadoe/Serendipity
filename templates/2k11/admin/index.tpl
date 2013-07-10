@@ -49,7 +49,7 @@
             <form id="login" class="clearfix" action="serendipity_admin.php" method="post">
                 <input type="hidden" name="serendipity[action]" value="admin">
                 <fieldset>
-                    <legend class="visuallyhidden"><span>{$CONST.PLEASE_ENTER_CREDENTIALS}</span></legend>
+                    <span><legend>{$CONST.PLEASE_ENTER_CREDENTIALS}</legend></span>
 
                     <div class="form_field">
                         <label for="login_uid">{$CONST.USERNAME}</label>
@@ -65,18 +65,20 @@
                         <input id="login_auto" name="serendipity[auto]" type="checkbox"><label for="login_auto">{$CONST.AUTOMATIC_LOGIN}</label>
                     </div>
 
-                    <input id="login_send" name="submit" type="submit" value="{$CONST.LOGIN}">
+                    <div class="form_buttons">
+                        <input id="login_send" name="submit" type="submit" value="{$CONST.LOGIN}">
+                        <a class="button_link" href="{$serendipityBaseURL}">{$CONST.BACK_TO_BLOG}</a>
+                    </div>
                 </fieldset>
                 {$admin_vars.out.table}
             </form>
-            <a id="back_to_blog" href="{$serendipityBaseURL}">{$CONST.BACK_TO_BLOG}</a>
             {$admin_vars.out.footer}
     {else}
         {if NOT $admin_vars.no_sidebar}
         <div class="smallscreen">
             <a id="nav-toggle" href="#main_menu"><span class="icon-menu"></span><span class="visuallyhidden"> Navigation</span></a> {* i18n *}
 
-            <nav id="main_menu">
+            <nav id="main_menu" class="additional_info">
                 <h2 class="visuallyhidden">Main menu</h2> {* i18n *}
 
                 <ul class="clearfix">

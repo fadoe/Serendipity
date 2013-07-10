@@ -3,9 +3,9 @@
     <div id="dashboard" class="clearfix">
     {if $update}
         <section id="dashboard_update">
-            <h3>UPDATER_TITLE</h3>
+            <h3>Update notification</h3> {* i18n *}
 
-            <span class="msg_notice"><span class="icon-info-circled"></span> New Version available: {$curVersion}</span>
+            <span class="msg_notice"><span class="icon-info-circled"></span> New stable Serendipity version available: {$curVersion}</span>
         </section>
     {/if}
     {if is_array($comments)}
@@ -14,8 +14,7 @@
 
             <ol class="plainList">
             {foreach $comments as $comment}
-                <li>
-                    <div class="comment_summary">
+                <li><div class="comment_summary">
                         <b>#{$comment.id}</b> – {$comment.body|truncate:100:"&hellip;"}
                     </div>
                     
@@ -41,46 +40,40 @@
     {/if}
     {if is_array($entries)}
         <section id="dashboard_entries" class="equal_heights quick_list">
-            <h3>Future Entries</h3> {* i18n *}
+            <h3>{$CONST.ADMIN_ENTRIES}</h3> {* i18n *}
 
             <ol class="plainList">
             {foreach $entries as $entry}
-                <li>
+                <li class="clearfix">
                     <a href="?serendipity[action]=admin&amp;serendipity[adminModule]=entries&amp;serendipity[adminAction]=edit&amp;serendipity[id]={$entry.id}" title="#{$entry.id}: {$entry.title|escape}">{$entry.title}</a>
                     <ul class="plainList actions">
-                        <li>
-                            <a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=entries&amp;serendipity[adminAction]=preview&amp;{$token}&amp;serendipity[id]={$entry.id}" title="{$CONST.PREVIEW} #{$entry.id}">
-                                <span class="icon-eye"></span>
-                                <span class="visuallyhidden">
-                                    {$CONST.PREVIEW}
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=entries&amp;serendipity[adminAction]=edit&amp;serendipity[id]={$entry.id}" title="{$CONST.EDIT} #{$entry.id}">
-                                <span class="icon-edit"></span>
-                                <span class="visuallyhidden">
-                                    {$CONST.EDIT}
-                                </span>
-                            </a>
-                        </li>
+                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=entries&amp;serendipity[adminAction]=preview&amp;{$token}&amp;serendipity[id]={$entry.id}" title="{$CONST.PREVIEW} #{$entry.id}"><span class="icon-eye"></span><span class="visuallyhidden"> {$CONST.PREVIEW}</span></a></li>
+                        <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=entries&amp;serendipity[adminAction]=edit&amp;serendipity[id]={$entry.id}" title="{$CONST.EDIT} #{$entry.id}"><span class="icon-edit"></span><span class="visuallyhidden"> {$CONST.EDIT}</span></a></li>
                     </ul>
+                {if !$showFutureEntries && ($entry.timestamp >= $serverOffsetHour) && $entry.isdraft == "false"}
+                    <span class="entry_status status_future">{$CONST.ENTRY_PUBLISHED_FUTURE}</span>
+                {/if}
+                {if $entry.isdraft == "true"}
+                    <span class="entry_status status_draft">Draft</span>
+                {/if}
                 </li>
             {/foreach}
             </ol>
         </section>
     {/if}
         <section id="further_links">
-            <h3>{$CONST.FURTHER_LINKS}</h3>
-            
-            <ul class="clearfix plainList">
-                <li><a href="http://www.s9y.org/">{$CONST.FURTHER_LINKS_S9Y}</a></li>
-                <li><a href="http://www.s9y.org/33.html">{$CONST.FURTHER_LINKS_S9Y_DOCS}</a></li>
-                <li><a href="http://blog.s9y.org/">{$CONST.FURTHER_LINKS_S9Y_BLOG}</a></li>
-                <li><a href="http://www.s9y.org/forums/">{$CONST.FURTHER_LINKS_S9Y_FORUMS}</a></li>
-                <li><a href="http://spartacus.s9y.org/">{$CONST.FURTHER_LINKS_S9Y_SPARTACUS}</a></li>
-                <li><a class="s9y_bookmarklet" href="{$bookmarklet}" title="{$CONST.FURTHER_LINKS_S9Y_BOOKMARKLET_DESC}">{$CONST.FURTHER_LINKS_S9Y_BOOKMARKLET}</a></li>
-            </ul>
+            <h3 class="collapsed"><a href="#s9y_links" class="toggle_links"><span class="icon-plus"></span> {$CONST.FURTHER_LINKS}</a></h3>
+
+            <div id="s9y_links" class="additional_info">
+                <ul class="clearfix plainList">
+                    <li><a href="http://www.s9y.org/">{$CONST.FURTHER_LINKS_S9Y}</a></li>
+                    <li><a href="http://www.s9y.org/33.html">{$CONST.FURTHER_LINKS_S9Y_DOCS}</a></li>
+                    <li><a href="http://blog.s9y.org/">{$CONST.FURTHER_LINKS_S9Y_BLOG}</a></li>
+                    <li><a href="http://www.s9y.org/forums/">{$CONST.FURTHER_LINKS_S9Y_FORUMS}</a></li>
+                    <li><a href="http://spartacus.s9y.org/">{$CONST.FURTHER_LINKS_S9Y_SPARTACUS}</a></li>
+                    <li><a class="s9y_bookmarklet" href="{$bookmarklet}" title="{$CONST.FURTHER_LINKS_S9Y_BOOKMARKLET_DESC}">{$CONST.FURTHER_LINKS_S9Y_BOOKMARKLET}</a></li>
+                </ul>
+            </div>
         </section>
     </div>
     <script src="{serendipity_getFile file='admin/js/jquery.syncheight.js'}"></script>

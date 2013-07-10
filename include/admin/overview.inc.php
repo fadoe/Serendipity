@@ -25,11 +25,19 @@ $data['usedVersion'] = Version::VERSION;
 $data['update'] = version_compare($data['usedVersion'], $data['curVersion'], '<');
 
 
-$data['comments'] = serendipity_db_query("SELECT c.*, e.title FROM {$serendipity['dbPrefix']}comments c
+$comments = serendipity_db_query("SELECT c.*, e.title FROM {$serendipity['dbPrefix']}comments c
                                     LEFT JOIN {$serendipity['dbPrefix']}entries e ON (e.id = c.entry_id)
                                     ORDER BY c.id DESC LIMIT 5");
+if (count($comments) > 1) {
+    foreach ($comments as &$comment) {
+        $entrylink = serendipity_archiveURL($comment['entry_id'], 'comments', 'serendipityHTTPPath', true) . '#c' . $comment['id'];
+        $comment['entrylink'] = $entrylink;
+    }
+}
 
-$data['entries'] = serendipity_fetchEntries(
+$data['comments'] = $comments;
+
+$entries = serendipity_fetchEntries(
                      false,
                      false,
                      5,
@@ -38,6 +46,30 @@ $data['entries'] = serendipity_fetchEntries(
                      'timestamp DESC',
                      'e.timestamp >= ' . serendipity_serverOffsetHour()
                    );
+
+$entriesAmount = count($entries);
+if ($entriesAmount < 5) {
+    // there is still space for drafts
+    $drafts = serendipity_fetchEntries(
+                     false,
+                     false,
+                     5- $entriesAmount,
+                     true,
+                     false,
+                     'timestamp DESC',
+                     'isdraft = "true" AND e.timestamp <=  ' . serendipity_serverOffsetHour() 
+                   );
+    if (is_array($entries) && is_array($drafts)) {
+        $entries = array_merge($entries, $drafts);
+    } else {
+        if (is_array($drafts)) {
+            // $entries is not an array, thus empty
+            $entries = $drafts;
+        }
+    }
+}
+
+$data['entries'] = $entries;
 
 $data['token'] = serendipity_setFormToken('url');
 

@@ -218,22 +218,22 @@ if (parent.frames && parent.frames['tree']) {
     {/if}{* if $perm_denied else end *}
 {elseif $media.case == 'tree'}
     <div id="content" class="clearfix">
-        <form name="mainForm" action="javscript:;">
+        <form id="mainForm" name="mainForm" action="javscript:;">
             <div class="newsItem">
                 <div id="expandcontractdiv">
-                    <a href="javascript:treeToggleAll()">{$CONST.TOGGLE_ALL}</a>
+                    <a id="tree_toggle_all" class="button_link" href="#treeDiv1">{$CONST.TOGGLE_ALL}</a>
                 </div>
                 <div id="treeDiv1"></div>
             </div>
         </form>
     </div>
 
-    <div id="footerContainer" class="clearfix">
+    <footer id="footerContainer" class="clearfix">
         <div id="footer">
-            <a id="newdirlink" class="button_link block_level" target="media" href="{$serendipityHTTPPath}serendipity_admin_image_selector.php?serendipity[step]=directoryCreate">{$CONST.WORD_NEW}</a>
-            <a id="managedirlink" class="button_link block_level" target="media" href="{$serendipityHTTPPath}serendipity_admin_image_selector.php?serendipity[step]=default&amp;serendipity[adminModule]=images&amp;serendipity[adminAction]=directorySelect">{$CONST.MANAGE_DIRECTORIES}</a>
+            <a id="newdirlink" class="button_link" target="media" href="{$serendipityHTTPPath}serendipity_admin_image_selector.php?serendipity[step]=directoryCreate">{$CONST.WORD_NEW}</a>
+            <a id="managedirlink" class="button_link" target="media" href="{$serendipityHTTPPath}serendipity_admin_image_selector.php?serendipity[step]=default&amp;serendipity[adminModule]=images&amp;serendipity[adminAction]=directorySelect">{$CONST.MANAGE_DIRECTORIES}</a>
         </div>
-    </div>
+    </footer>
 {/if}{* if $media.case switch end *}
 </div> <!-- //.serendipityAdminContent end -->
 <script src="{serendipity_getFile file='admin/serendipity_editor.js'}"></script>

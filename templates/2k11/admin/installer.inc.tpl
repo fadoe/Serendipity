@@ -6,7 +6,6 @@
     <title>{$CONST.SERENDIPITY_ADMIN_SUITE}</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="{serendipity_getFile file='admin/style.css'}">
-    <script src="{serendipity_getFile file='admin/js/modernizr-2.6.2.min.js'}"></script>
 </head>
 <body id="serendipity_admin_page">
     <header id="top">
@@ -54,11 +53,11 @@
                     <tbody>
                         <tr>
                             <td>{$CONST.OPERATING_SYSTEM}</td>
-                            <td>{$php_uname}</td>
+                            <td><span class="msg_hint">{$php_uname}</span></td>
                         </tr>
                         <tr>
                             <td>{$CONST.WEBSERVER_SAPI}</td>
-                            <td>{$php_sapi_name}</td>
+                            <td><span class="msg_hint">{$php_sapi_name}</span></td>
                         </tr>
                         <tr>
                             <td>PHP version >= 5.2.6</td>
@@ -278,7 +277,7 @@
 
             <p><strong>{$CONST.THANK_YOU_FOR_CHOOSING}</strong></p>
 
-            <a class="block_level" href="{$smarty.post.serendipityHTTPPath}">{$CONST.VISIT_BLOG_HERE}</a>
+            <a class="button_link state_submit" href="{$smarty.post.serendipityHTTPPath}">{$CONST.VISIT_BLOG_HERE}</a>
             {else}
             <span class="msg_error">{$CONST.ERROR_DETECTED_IN_INSTALL}</span>
             {/if}
@@ -289,7 +288,5 @@
     <footer id="meta">
         <p>{$ADMIN_FOOTER_POWERED_BY|sprintf:$versionInstalled:$phpversion}</p>
     </footer>
-
-    <script src="{serendipity_getFile file='admin/serendipity_editor.js'}"></script>
 </body>
 </html>

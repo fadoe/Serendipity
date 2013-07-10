@@ -28,7 +28,7 @@ var $filter_defaults;
             'smarty'      => '2.6.7',
             'php'         => '4.1.0'
         ));
-        $propbag->add('version',       '1.80');
+        $propbag->add('version',       '1.81');
         $propbag->add('event_hooks',    array(
             'frontend_saveComment' => true,
             'external_plugin'      => true,
@@ -783,9 +783,7 @@ var $filter_defaults;
     }
 
     function example() {
-        echo '<p id="captchabox" class="msg_hint">' . PLUGIN_EVENT_SPAMBLOCK_LOOK;
-        $this->show_captcha();
-        echo '</p>';
+        return '<p id="captchabox" class="msg_hint">' . PLUGIN_EVENT_SPAMBLOCK_LOOK . $this->show_captcha() . '</p>';
     }
 
     function show_captcha($use_gd = false) {
@@ -801,7 +799,7 @@ var $filter_defaults;
         }
 
         if ($use_gd) {
-            printf('<img src="%s" onclick="this.src=this.src + \'1\'" title="%s" alt="CAPTCHA" class="captcha" />',
+            return sprintf('<img src="%s" onclick="this.src=this.src + \'1\'" title="%s" alt="CAPTCHA" class="captcha" />',
                 $serendipity['baseURL'] . ($serendipity['rewrite'] == 'none' ? $serendipity['indexFile'] . '?/' : '') . 'plugin/captcha_' . md5(time()),
                 htmlspecialchars(PLUGIN_EVENT_SPAMBLOCK_CAPTCHAS_USERDESC2)
             );
@@ -809,14 +807,14 @@ var $filter_defaults;
             $bgcolors = explode(',', $this->get_config('captcha_color', '255,0,255'));
             $hexval   = '#' . dechex(trim($bgcolors[0])) . dechex(trim($bgcolors[1])) . dechex(trim($bgcolors[2]));
             $this->random_string($max_char, $min_char);
-            echo '<div class="serendipity_comment_captcha_image" style="background-color: ' . $hexval . '">';
+            $output = '<div class="serendipity_comment_captcha_image" style="background-color: ' . $hexval . '">';
             for ($i = 1; $i <= $max_char; $i++) {
-                printf('<img src="%s" title="%s" alt="CAPTCHA ' . $i . '" class="captcha" />',
+                $output .= sprintf('<img src="%s" title="%s" alt="CAPTCHA ' . $i . '" class="captcha" />',
                     $serendipity['baseURL'] . ($serendipity['rewrite'] == 'none' ? $serendipity['indexFile'] . '?/' : '') . 'plugin/captcha_' . $i . '_' . md5(time()),
                     htmlspecialchars(PLUGIN_EVENT_SPAMBLOCK_CAPTCHAS_USERDESC2)
                 );
             }
-            echo '</div>';
+            $output .= '</div>';
         }
     }
 
@@ -1251,7 +1249,7 @@ var $filter_defaults;
                         echo '<div class="serendipity_commentDirection serendipity_comment_captcha">';
                         if (!isset($serendipity['POST']['preview']) || strtolower($serendipity['POST']['captcha'] != strtolower($_SESSION['spamblock']['captcha']))) {
                             echo '<br />' . PLUGIN_EVENT_SPAMBLOCK_CAPTCHAS_USERDESC . '<br />';
-                            $this->show_captcha($use_gd);
+                            echo $this->show_captcha($use_gd);
                             echo '<br />';
                             echo '<label for="captcha">'. PLUGIN_EVENT_SPAMBLOCK_CAPTCHAS_USERDESC3 . '</label><br /><input class="input_textbox" type="text" size="5" name="serendipity[captcha]" value="" id="captcha" />';
                         } elseif (isset($serendipity['POST']['captcha'])) {
@@ -1408,20 +1406,20 @@ var $filter_defaults;
                     $akismet_apikey = $this->get_config('akismet');
                     $akismet        = $this->get_config('akismet_filter');
                     if (!empty($akismet_apikey)) {
-                        $eventData['action_more'] .= ' <a id="' . $clink1 . '" class="serendipityIconLink" title="' . PLUGIN_EVENT_SPAMBLOCK_SPAM . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamIsSpam]=' . $eventData['id'] . $addData . '#' . $clink1 . '"><img src="' . serendipity_getTemplateFile('admin/img/unconfigure.png') . '" alt="" />' . PLUGIN_EVENT_SPAMBLOCK_SPAM . '</a>';
-                        $eventData['action_more'] .= ' <a id="' . $clink1 . '" class="serendipityIconLink" title="' . PLUGIN_EVENT_SPAMBLOCK_NOT_SPAM . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamNotSpam]=' . $eventData['id'] . $addData . '#' . $clink1 . '"><img src="' . serendipity_getTemplateFile('admin/img/configure.png') . '" alt="" />' . PLUGIN_EVENT_SPAMBLOCK_NOT_SPAM . '</a>';
+                        $eventData['action_more'] .= ' <a id="' . $clink1 . '" class="icon_link" title="' . PLUGIN_EVENT_SPAMBLOCK_SPAM . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamIsSpam]=' . $eventData['id'] . $addData . '#' . $clink1 . '"><span class="icon-lock"></span> ' . PLUGIN_EVENT_SPAMBLOCK_SPAM . '</a>';
+                        $eventData['action_more'] .= ' <a id="' . $clink1 . '" class="icon_link" title="' . PLUGIN_EVENT_SPAMBLOCK_NOT_SPAM . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamNotSpam]=' . $eventData['id'] . $addData . '#' . $clink1 . '"><span class="icon-lock-open"></span> ' . PLUGIN_EVENT_SPAMBLOCK_NOT_SPAM . '</a>';
                     }
 
-                    $eventData['action_author'] .= ' <a id="' . $clink1 . '" class="serendipityIconLink" title="' . ($author_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_AUTHOR : PLUGIN_EVENT_SPAMBLOCK_ADD_AUTHOR) . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamBlockAuthor]=' . $eventData['id'] . $addData . '#' . $clink1 . '"><img src="' . serendipity_getTemplateFile('admin/img/' . ($author_is_filtered ? 'un' : '') . 'configure.png') . '" alt="" /></a>';
+                    $eventData['action_author'] .= ' <a id="' . $clink1 . '" class="icon_link" title="' . ($author_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_AUTHOR : PLUGIN_EVENT_SPAMBLOCK_ADD_AUTHOR) . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamBlockAuthor]=' . $eventData['id'] . $addData . '#' . $clink1 . '"><span class="icon-lock' . ($author_is_filtered ? '-open' : '') .'"></span><span class="visuallyhidden"> ' . ($author_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_AUTHOR : PLUGIN_EVENT_SPAMBLOCK_ADD_AUTHOR) . '</span></a>';
 
                     if (!empty($eventData['url'])) {
                         $url_is_filtered    = $this->checkFilter('urls', $eventData['url']);
-                        $eventData['action_url']    .= ' <a id="' . $clink2 . '" class="serendipityIconLink" title="' . ($url_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_URL : PLUGIN_EVENT_SPAMBLOCK_ADD_URL) . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamBlockURL]=' . $eventData['id'] . $addData . '#' . $clink2 . '"><img src="' . serendipity_getTemplateFile('admin/img/' . ($url_is_filtered ? 'un' : '') . 'configure.png') . '" alt="" /></a>';
+                        $eventData['action_url']    .= ' <a id="' . $clink2 . '" class="icon_link" title="' . ($url_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_URL : PLUGIN_EVENT_SPAMBLOCK_ADD_URL) . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamBlockURL]=' . $eventData['id'] . $addData . '#' . $clink2 . '"><span class="icon-lock' . ($url_is_filtered ? '-open' : '') .'"></span><span class="visuallyhidden"> ' . ($url_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_URL : PLUGIN_EVENT_SPAMBLOCK_ADD_URL) . '</span></a>';
                     }
 
                     if (!empty($eventData['email'])) {
                         $email_is_filtered    = $this->checkFilter('emails', $eventData['email']);
-                        $eventData['action_email']    .= ' <a id="' . $clink2 . '" class="serendipityIconLink" title="' . ($email_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_EMAIL : PLUGIN_EVENT_SPAMBLOCK_ADD_EMAIL) . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamBlockEmail]=' . $eventData['id'] . $addData . '#' . $clink2 . '"><img src="' . serendipity_getTemplateFile('admin/img/' . ($email_is_filtered ? 'un' : '') . 'configure.png') . '" alt="" /></a>';
+                        $eventData['action_email']    .= ' <a id="' . $clink2 . '" class="icon_link" title="' . ($email_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_EMAIL : PLUGIN_EVENT_SPAMBLOCK_ADD_EMAIL) . '" href="serendipity_admin.php?serendipity[adminModule]=comments&amp;serendipity[spamBlockEmail]=' . $eventData['id'] . $addData . '#' . $clink2 . '"><span class="icon-lock' . ($email_is_filtered ? '-open' : '') .'"></span><span class="visuallyhidden"> ' . ($email_is_filtered ? PLUGIN_EVENT_SPAMBLOCK_REMOVE_EMAIL : PLUGIN_EVENT_SPAMBLOCK_ADD_EMAIL) . '</span></a>';
                     }
 
                     return true;
