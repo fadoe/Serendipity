@@ -485,10 +485,11 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
                     $this->debug('URLCheck succeeded. Touching ' . $feedcache);
                     // Touching the feedcache file will prevent loops of death when the RSS target is the same URI than our blog.
                     @touch($feedcache);
-                    $c = new Onyx_RSS($charset);
-                    $this->debug('Running Onyx Parser');
-                    $c->parse($rssuri);
-                    $this->encoding = $c->rss['encoding'];
+                    $rssParser = new SimplePie();
+                    $rssParser->set_feed_url($rssuri);
+                    $this->encoding = $rssParser->get_encoding();
+
+                    $this->debug('Running Simplepie Parser');
 
                     $use_rss_link = serendipity_db_bool($this->get_config('use_rss_link'));
                     $rss_elements = explode(',', $this->get_config('show_rss_element'));
@@ -496,15 +497,17 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
                     $i = 0;
                     $content = '';
                     $smarty_items = array();
-                    while (($showAll || ($i < $number)) && ($item = $c->getNextItem())) {
-                        if (empty($item['title'])) {
+                    /** @var $item Simplepie_Item */
+                    while (($showAll || ($i < $number)) && ($item = $rssParser->get_items())) {
+                        $title = $item->get_title();
+                        if (empty($title)) {
                             continue;
                         }
 
                         $content .= '<div class="rss_item">';
 
                         if ($use_rss_link) {
-                            $content .= '<div class="rss_link"><a href="' . htmlspecialchars($this->decode($item['link'])) . '" ' . (!empty($target) ? 'target="'.$target.'"' : '') . '>';
+                            $content .= '<div class="rss_link"><a href="' . htmlspecialchars($this->decode($item->get_link())) . '" ' . (!empty($target) ? 'target="'.$target.'"' : '') . '>';
                         }
 
                         if (!empty($bulletimg)) {
@@ -512,21 +515,22 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
                         }
 
                         $is_first = true;
-                        foreach($rss_elements AS $rss_element) {
+                        foreach($rss_elements as $rss_element) {
                             $rss_element = trim($rss_element);
                             
                             if (!$is_first) {
                                 $content .= '<span class="rss_' . preg_replace('@[^a-z0-9]@imsU', '', $rss_element) . '">';
                             }
 
+                            $method = 'get_' . $rss_element;
                             if ($escape_rss) {
-                                $content .= $this->decode($item[$rss_element]);
+                                $content .= $this->decode($item->$method);
                             } else {
-                                $content .= htmlspecialchars($this->decode($item[$rss_element]));
+                                $content .= htmlspecialchars($this->decode($item->$method));
                             }
                             
                             if ($smarty) {
-                                $item['display_elements'][preg_replace('@[^a-z0-9]@imsU', '', $rss_element)] = $this->decode($item[$rss_element]);
+                                $item['display_elements'][preg_replace('@[^a-z0-9]@imsU', '', $rss_element)] = $this->decode($item->$method);
                             }
                             
                             if (!$is_first) {
@@ -556,7 +560,7 @@ class serendipity_plugin_remoterss extends serendipity_plugin {
                         if ($smarty) {
                             $smarty_items['items'][$i] = $item;
                             $smarty_items['items'][$i]['css_class'] = preg_replace('@[^a-z0-9]@imsU', '', $rss_element);
-                            foreach($item AS $key => $val) {
+                            foreach($item as $key => $val) {
                                 $smarty_items['items'][$i]['decoded_' . str_replace(':', '_', $key)] = $this->decode($key);
                             }
                         }

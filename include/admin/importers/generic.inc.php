@@ -63,16 +63,22 @@ class Serendipity_Import_Generic extends Serendipity_Import {
         return $ret;
     }
 
-    function buildEntry($item, &$entry) {
-        global $serendipity;
+    /**
+     * @param $item Simplepie_Item
+     * @param $entry
+     * @return bool
+     */
+    function buildEntry($item, &$entry)
+    {
+        //global $serendipity;
 
         $bodyonly = serendipity_get_bool($this->data['bodyonly']);
 
         if ($item['description']) {
-            $entry['body'] = $this->decode($item['description']);
+            $entry['body'] = $this->decode($item->get_description($item->get_title());
         }
 
-        if ($item['content:encoded']) {
+        if ($item->get_content()) {
             if (!isset($entry['body']) || $bodyonly) {
                 $data = &$entry['body'];
             } else {
@@ -84,15 +90,16 @@ class Serendipity_Import_Generic extends Serendipity_Import {
             // the 'content:encoded' part to either body or extended entry (respecting the 'bodyonly'
             // switch). We substract 4 letters because of possible '...' additions to an entry.
             $testbody = substr(trim(strip_tags($entry['body'])), 0, -4);
-            if ($testbody != substr(trim(strip_tags($item['content:encoded'])), 0, strlen($testbody))) {
-                $data .= $this->decode($item['content:encoded']);
+            if ($testbody != substr(trim(strip_tags($item->get_content())), 0, strlen($testbody))) {
+                $data .= $this->decode($item->get_content());
             } else {
-                $data = $this->decode($item['content:encoded']);
+                $data = $this->decode($item->get_content());
             }
         }
 
-        $entry['title'] = $this->decode($item['title']);
-        $entry['timestamp'] = $this->decode(strtotime(isset($item['pubdate']) ? $item['pubdate'] : $item['dc:date']));
+        $entry['title'] = $this->decode($item->get_title());
+        $date = $item->get_date();
+        $entry['timestamp'] = $this->decode(strtotime(isset($date) ? $date : $item->get_updated_date()));
         if ($entry['timestamp'] == -1) {
             // strtotime does not seem to parse ISO 8601 dates
             if (preg_match('@^([0-9]{4})\-([0-9]{2})\-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})[\-\+]([0-9]{2}):([0-9]{2})$@', isset($item['pubdate']) ? $item['pubdate'] : $item['dc:date'], $timematch)) {
@@ -311,19 +318,21 @@ class Serendipity_Import_Generic extends Serendipity_Import {
         return true;
     }
 
-    function import() {
+    function import()
+    {
         global $serendipity;
 
         if (serendipity_db_bool($this->data['wpxrss'])) {
             return $this->import_wpxrss();
         }
 
-        $c = new Onyx_RSS($this->data['charset']);
-        $c->parse($this->data['url']);
-        $this->data['encoding'] = $c->rss['encoding'];
+        $rssParser = new SimplePie();
+        $rssParser->set_input_encoding($this->data['charset']);
+
+        $this->data['encoding'] = $rssParser->get_encoding();
 
         $serendipity['noautodiscovery'] = 1;
-        while ($item = $c->getNextItem()) {
+        while ($item = $rssParser->get_items()) {
             $entry    = array();
             if ($this->buildEntry($item, $entry)) {
                 serendipity_updertEntry($entry);

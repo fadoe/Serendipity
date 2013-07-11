@@ -23,7 +23,6 @@
     "autoload": {
         "psr-0": {
             "Serendipity": "src/",
-            "Onyx": "bundled-libs/",
             "HTTP": "bundled-libs/",
             "Net": "bundled-libs/",
             "Cache": "bundled-libs/",
